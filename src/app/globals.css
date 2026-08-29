@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+/* Tailwind v4: expone los colores de marca como utilidades (bg-brand, text-ink-soft, etc.) */
+@theme inline {
+  --color-brand: var(--brand);
+  --color-brand-hard: var(--brand-hard);
+  --color-brand-dark: var(--brand-dark);
+  --color-brand-soft: var(--brand-soft);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-mist: var(--mist);
+  --color-amber-pop: var(--amber-pop);
+  --font-display: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --font-display: var(--font-nunito);
+  --brand: #ff441f;
+  --brand-hard: #d6330f;
+  --brand-dark: #c73a17;
+  --brand-soft: #fff0ec;
+  --brand-accent: #ff7a2f;
+  --brand-glow: rgba(255, 68, 31, 0.42);
+  --ink: #1f2937;
+  --ink-soft: #6b7280;
+  --mist: #f3f4f6;
+  --amber-pop: #fbbf24;
+}
+
+body {
+  font-family: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.route-dash {
+  animation: dash 1.2s linear infinite;
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: -26;
+  }
+}
+
+.courier-ring {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "name": "rayte",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p ${PORT:-3000} -H 0.0.0.0",
+    "build": "next build",
+    "start": "next start -p ${PORT:-3000} -H 0.0.0.0",
+    "db:push": "drizzle-kit push",
+    "db:seed": "tsx src/db/seed.ts",
+    "db:seed:all": "npm run db:seed && tsx src/db/seed-extras.ts && tsx src/db/seed-options.ts && tsx src/db/seed-partners.ts && tsx src/db/seed-combos.ts && tsx src/db/seed-parrilladas.ts",
+    "db:init": "npm run db:push -- --force && npm run db:seed:all"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.2",
+    "framer-motion": "^13.1.1",
+    "lucide-react": "^1.33.0",
+    "next": "^16.3.2",
+    "pg": "^8.23.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^24",
+    "@types/pg": "^8",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "dotenv": "^17.4.2",
+    "drizzle-kit": "^0.31.10",
+    "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.12",
+    "typescript": "^5"
+  }
+}
