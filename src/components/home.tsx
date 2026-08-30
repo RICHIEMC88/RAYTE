@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -70,12 +70,29 @@ function TopButton({
 
 type Promo = { title: string; subtitle: string; image: string; href: string; gradient: string; tag: string };
 
+function useEmbeddedMode() {
+  const [embedded, setEmbedded] = useState(false);
+
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const queryEmbed = params.get("embed") === "1" || params.get("embed") === "true" || params.get("wix") === "1";
+      setEmbedded(queryEmbed || window.self !== window.top);
+    } catch {
+      setEmbedded(true);
+    }
+  }, []);
+
+  return embedded;
+}
+
 export function PromoCarousel({ promos }: { promos: Promo[] }) {
+  const embedded = useEmbeddedMode();
   const ref = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0);
 
   const scrollTo = (i: number) => {
-    const el = ref.current; if (!el) return;
+    const el = ref.current; if (!el || embedded) return;
     const clamped = Math.max(0, Math.min(i, promos.length - 1));
     el.scrollTo({ left: clamped * el.clientWidth * 0.9, behavior: "smooth" });
     setIndex(clamped);
@@ -83,10 +100,14 @@ export function PromoCarousel({ promos }: { promos: Promo[] }) {
 
   return (
     <section className="mx-auto mt-4 max-w-5xl">
-      <div ref={ref} onScroll={(e) => { const el = e.currentTarget; setIndex(Math.round(el.scrollLeft / (el.clientWidth * 0.9))); }} className="no-scrollbar flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2">
+      <div
+        ref={ref}
+        onScroll={embedded ? undefined : (e) => { const el = e.currentTarget; setIndex(Math.round(el.scrollLeft / (el.clientWidth * 0.9))); }}
+        className={embedded ? "grid gap-3 px-4 pb-2" : "no-scrollbar flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2"}
+      >
         {promos.map((p) => (
-          <Link key={p.title} href={p.href} className={`relative h-[168px] w-[88%] shrink-0 snap-center overflow-hidden rounded-[26px] bg-gradient-to-br ${p.gradient} sm:w-[46%] lg:w-[32.5%]`}>
-            {p.image && <Image src={p.image} alt={p.title} fill className="object-cover opacity-35 mix-blend-overlay" sizes="(max-width: 640px) 88vw, 33vw" />}
+          <Link key={p.title} href={p.href} className={`relative overflow-hidden rounded-[26px] bg-gradient-to-br ${p.gradient} ${embedded ? "h-[150px] w-full" : "h-[168px] w-[88%] shrink-0 snap-center sm:w-[46%] lg:w-[32.5%]"}`}>
+            {p.image && <Image src={p.image} alt={p.title} fill className="object-cover opacity-35 mix-blend-overlay" sizes={embedded ? "100vw" : "(max-width: 640px) 88vw, 33vw"} />}
             <div className="relative flex h-full flex-col justify-between p-5">
               <span className="w-fit rounded-full bg-white/20 px-3 py-1 text-[11px] font-black tracking-wide text-white uppercase backdrop-blur">{p.tag}</span>
               <div>
@@ -97,14 +118,17 @@ export function PromoCarousel({ promos }: { promos: Promo[] }) {
           </Link>
         ))}
       </div>
-      <div className="mt-1 flex items-center justify-center gap-2">
-        {promos.map((_, i) => <button key={i} onClick={() => scrollTo(i)} aria-label={`Promo ${i + 1}`} className={`h-1.5 rounded-full transition-all ${index === i ? "w-6 bg-brand" : "w-1.5 bg-black/15"}`} />)}
-      </div>
+      {!embedded && (
+        <div className="mt-1 flex items-center justify-center gap-2">
+          {promos.map((_, i) => <button key={i} onClick={() => scrollTo(i)} aria-label={`Promo ${i + 1}`} className={`h-1.5 rounded-full transition-all ${index === i ? "w-6 bg-brand" : "w-1.5 bg-black/15"}`} />)}
+        </div>
+      )}
     </section>
   );
 }
 
 export function TurboRow({ store, products }: { store: Restaurant; products: Product[] }) {
+  const embedded = useEmbeddedMode();
   const addItem = useCart((s) => s.addItem);
   const cartRestaurant = { id: store.id, name: store.name, slug: store.slug, deliveryFee: store.deliveryFee, timeMin: store.timeMin, timeMax: store.timeMax };
 
@@ -122,9 +146,9 @@ export function TurboRow({ store, products }: { store: Restaurant; products: Pro
           <Link href={`/restaurante/${store.slug}`} className="flex items-center gap-1 rounded-full bg-white/10 px-3.5 py-2 text-[12.5px] font-black text-amber-pop transition hover:bg-white/15">Ver todo <ChevronRight className="h-4 w-4" /></Link>
         </div>
 
-        <div className="no-scrollbar mt-4 flex gap-3 overflow-x-auto pb-1">
+        <div className={embedded ? "mt-4 grid grid-cols-2 gap-3" : "no-scrollbar mt-4 flex gap-3 overflow-x-auto pb-1"}>
           {products.map((p, i) => (
-            <motion.div key={p.id} initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} className="w-[136px] shrink-0 rounded-[20px] bg-white/[0.07] p-2.5 backdrop-blur">
+            <motion.div key={p.id} initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} className={`${embedded ? "w-full min-w-0" : "w-[136px] shrink-0"} rounded-[20px] bg-white/[0.07] p-2.5 backdrop-blur`}>
               <div className="relative h-[92px] overflow-hidden rounded-[14px]">{p.image && <Image src={p.image} alt={p.name} fill className="object-cover" sizes="136px" />}</div>
               <p className="mt-2 line-clamp-2 min-h-8 text-[12.5px] leading-tight font-extrabold text-white">{p.name}</p>
               <div className="mt-1.5 flex items-center justify-between">
@@ -140,6 +164,7 @@ export function TurboRow({ store, products }: { store: Restaurant; products: Pro
 }
 
 export function FeaturedFoodRow({ stores }: { stores: Restaurant[] }) {
+  const embedded = useEmbeddedMode();
   const foodStores = stores.filter((s) => ["restaurantes", "panaderias", "postres"].includes(s.categorySlug));
 
   return (
@@ -161,9 +186,9 @@ export function FeaturedFoodRow({ stores }: { stores: Restaurant[] }) {
         </Link>
       </div>
 
-      <div className="no-scrollbar -mx-4 mt-4 flex gap-3.5 overflow-x-auto px-4 pb-2 snap-x snap-mandatory">
+      <div className={embedded ? "mt-4 grid gap-3" : "no-scrollbar -mx-4 mt-4 flex gap-3.5 overflow-x-auto px-4 pb-2 snap-x snap-mandatory"}>
         {foodStores.map((r) => (
-          <RestaurantCarouselCard key={`feat-${r.id}`} r={r} />
+          <RestaurantCarouselCard key={`feat-${r.id}`} r={r} fullWidth={embedded} />
         ))}
       </div>
     </section>
@@ -171,6 +196,7 @@ export function FeaturedFoodRow({ stores }: { stores: Restaurant[] }) {
 }
 
 export function FavoritesFoodRow({ stores }: { stores: Restaurant[] }) {
+  const embedded = useEmbeddedMode();
   const isFavorite = useFavorites((s) => s.isFavorite);
   const favStores = stores.filter((s) => isFavorite(s.slug) && ["restaurantes", "panaderias", "postres", "mercado"].includes(s.categorySlug));
   const displayStores = favStores.length > 0 ? favStores : stores.filter((s) => ["la-brasa-smash", "panaderia-la-espiga", "pizza-nonna"].includes(s.slug));
@@ -196,9 +222,9 @@ export function FavoritesFoodRow({ stores }: { stores: Restaurant[] }) {
         </Link>
       </div>
 
-      <div className="no-scrollbar -mx-4 mt-4 flex gap-3.5 overflow-x-auto px-4 pb-2 snap-x snap-mandatory">
+      <div className={embedded ? "mt-4 grid gap-3" : "no-scrollbar -mx-4 mt-4 flex gap-3.5 overflow-x-auto px-4 pb-2 snap-x snap-mandatory"}>
         {displayStores.map((r) => (
-          <RestaurantCarouselCard key={`fav-row-${r.id}`} r={r} />
+          <RestaurantCarouselCard key={`fav-row-${r.id}`} r={r} fullWidth={embedded} />
         ))}
       </div>
     </section>
@@ -206,6 +232,8 @@ export function FavoritesFoodRow({ stores }: { stores: Restaurant[] }) {
 }
 
 export function SaludRow({ services }: { services: Service[] }) {
+  const embedded = useEmbeddedMode();
+
   return (
     <section className="mx-auto mt-6 max-w-5xl px-4">
       <div className="flex items-end justify-between">
@@ -223,10 +251,10 @@ export function SaludRow({ services }: { services: Service[] }) {
         </Link>
       </div>
 
-      <div className="no-scrollbar -mx-4 mt-4 flex gap-3.5 overflow-x-auto px-4 pb-2">
+      <div className={embedded ? "mt-4 grid gap-3 sm:grid-cols-2" : "no-scrollbar -mx-4 mt-4 flex gap-3.5 overflow-x-auto px-4 pb-2"}>
         {services.map((s, i) => (
           <motion.div key={s.id} initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: Math.min(i * 0.05, 0.3) }}>
-            <Link href={`/servicios/${s.slug}`} className="group block w-[176px] shrink-0">
+            <Link href={`/servicios/${s.slug}`} className={`group block ${embedded ? "w-full min-w-0" : "w-[176px] shrink-0"}`}>
               <div className="relative h-[114px] overflow-hidden rounded-[20px] border border-[#1d6ae5]/20">
                 <Image src={s.image} alt={s.name} fill className="object-cover transition-transform duration-500 group-hover:scale-[1.06]" sizes="176px" />
                 <span className="absolute top-2.5 left-2.5 flex items-center gap-0.5 rounded-full bg-white/95 px-2 py-0.5 text-[10.5px] font-black shadow">
@@ -306,6 +334,8 @@ export function RayteGoBanner() {
 }
 
 export function ServicesRow({ services }: { services: Service[] }) {
+  const embedded = useEmbeddedMode();
+
   return (
     <section className="mx-auto mt-6 max-w-5xl px-4">
       <div className="flex items-end justify-between">
@@ -319,10 +349,10 @@ export function ServicesRow({ services }: { services: Service[] }) {
         <Link href="/servicios" className="flex items-center gap-1 rounded-full bg-[#7c3aed]/10 px-3.5 py-2 text-[12.5px] font-black text-[#7c3aed] transition hover:bg-[#7c3aed]/15">Ver todo <ChevronRight className="h-4 w-4" /></Link>
       </div>
 
-      <div className="no-scrollbar -mx-4 mt-4 flex gap-3.5 overflow-x-auto px-4 pb-2">
+      <div className={embedded ? "mt-4 grid gap-3 sm:grid-cols-2" : "no-scrollbar -mx-4 mt-4 flex gap-3.5 overflow-x-auto px-4 pb-2"}>
         {services.map((s, i) => (
           <motion.div key={s.id} initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: Math.min(i * 0.05, 0.3) }}>
-            <Link href={`/servicios/${s.slug}`} className="group block w-[168px] shrink-0">
+            <Link href={`/servicios/${s.slug}`} className={`group block ${embedded ? "w-full min-w-0" : "w-[168px] shrink-0"}`}>
               <div className="relative h-[110px] overflow-hidden rounded-[20px]">
                 <Image src={s.image} alt={s.name} fill className="object-cover transition-transform duration-500 group-hover:scale-[1.06]" sizes="168px" />
                 <span className="absolute top-2.5 left-2.5 flex items-center gap-0.5 rounded-full bg-white/95 px-2 py-0.5 text-[10.5px] font-black shadow">
@@ -340,12 +370,12 @@ export function ServicesRow({ services }: { services: Service[] }) {
   );
 }
 
-export function RestaurantCarouselCard({ r }: { r: Restaurant }) {
+export function RestaurantCarouselCard({ r, fullWidth = false }: { r: Restaurant; fullWidth?: boolean }) {
   const isFav = useFavorites((s) => s.isFavorite(r.slug));
   const toggleFav = useFavorites((s) => s.toggleFavorite);
 
   return (
-    <div className="w-[280px] sm:w-[320px] shrink-0 snap-center">
+    <div className={fullWidth ? "w-full min-w-0" : "w-[280px] sm:w-[320px] shrink-0 snap-center"}>
       <Link href={`/restaurante/${r.slug}`} className="group relative block">
         <div className="relative h-44 overflow-hidden rounded-[26px] bg-mist">
           <Image src={r.image} alt={r.name} fill className="object-cover transition-transform duration-700 group-hover:scale-[1.07]" sizes="320px" />
@@ -467,6 +497,7 @@ export function RestaurantCard({ r, index }: { r: Restaurant; index: number }) {
 }
 
 export function RestaurantList({ restaurants, dishes = [], crossItems = [], crossTitle }: { restaurants: Restaurant[]; dishes?: SurpriseDish[]; crossItems?: CrossSellItem[]; crossTitle?: string }) {
+  const embedded = useEmbeddedMode();
   const [sort, setSort] = useState<"none" | "fast" | "near">("none");
   const [freeShip, setFreeShip] = useState(false);
   const [openOnly, setOpenOnly] = useState(false);
@@ -548,9 +579,9 @@ export function RestaurantList({ restaurants, dishes = [], crossItems = [], cros
             </Link>
           </div>
 
-          <div className="no-scrollbar -mx-4 mt-3 flex gap-3.5 overflow-x-auto px-4 pb-2 snap-x snap-mandatory">
+          <div className={embedded ? "mt-3 grid gap-3" : "no-scrollbar -mx-4 mt-3 flex gap-3.5 overflow-x-auto px-4 pb-2 snap-x snap-mandatory"}>
             {openStores5.map((r) => (
-              <RestaurantCarouselCard key={`open5-${r.id}`} r={r} />
+              <RestaurantCarouselCard key={`open5-${r.id}`} r={r} fullWidth={embedded} />
             ))}
           </div>
         </div>
@@ -574,9 +605,9 @@ export function RestaurantList({ restaurants, dishes = [], crossItems = [], cros
             </Link>
           </div>
 
-          <div className="no-scrollbar -mx-4 mt-3 flex gap-3.5 overflow-x-auto px-4 pb-2 snap-x snap-mandatory">
+          <div className={embedded ? "mt-3 grid gap-3" : "no-scrollbar -mx-4 mt-3 flex gap-3.5 overflow-x-auto px-4 pb-2 snap-x snap-mandatory"}>
             {freeShipStores5.map((r) => (
-              <RestaurantCarouselCard key={`free5-${r.id}`} r={r} />
+              <RestaurantCarouselCard key={`free5-${r.id}`} r={r} fullWidth={embedded} />
             ))}
           </div>
         </div>
@@ -602,9 +633,9 @@ export function RestaurantList({ restaurants, dishes = [], crossItems = [], cros
           </div>
 
           {list.length > 0 && (
-            <div className="no-scrollbar -mx-4 mt-2.5 flex gap-3.5 overflow-x-auto px-4 pb-2 snap-x snap-mandatory">
+            <div className={embedded ? "mt-2.5 grid gap-3" : "no-scrollbar -mx-4 mt-2.5 flex gap-3.5 overflow-x-auto px-4 pb-2 snap-x snap-mandatory"}>
               {list.map((r) => (
-                <RestaurantCarouselCard key={`car-${r.id}`} r={r} />
+                <RestaurantCarouselCard key={`car-${r.id}`} r={r} fullWidth={embedded} />
               ))}
             </div>
           )}
