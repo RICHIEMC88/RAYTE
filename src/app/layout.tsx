@@ -21,7 +21,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="es">
-      <body className={`${nunito.variable} font-display antialiased`}>
+      <body className={`${nunito.variable} overflow-x-hidden font-display antialiased`}>
         {children}
         <AppShellChrome />
       </body>
