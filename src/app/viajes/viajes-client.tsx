@@ -202,7 +202,17 @@ export default function ViajesClient({ crossItems = [], crossTitle }: { crossIte
   const router = useRouter();
   const address = useCart((s) => s.address);
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const [embedded, setEmbedded] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const queryEmbed = params.get("embed") === "1" || params.get("embed") === "true" || params.get("wix") === "1";
+      setEmbedded(queryEmbed || window.self !== window.top);
+    } catch {
+      setEmbedded(true);
+    }
+  }, []);
 
   const [destino, setDestino] = useState("");
   const [vehicle, setVehicle] = useState<VehicleOption>(VEHICLES[0]);
@@ -288,8 +298,8 @@ export default function ViajesClient({ crossItems = [], crossTitle }: { crossIte
   };
 
   return (
-    <div className="min-h-screen bg-[#16121b] pb-28 text-white">
-      <header className="mx-auto flex max-w-lg items-center gap-3 px-4 pt-6 pb-2">
+    <div className={`min-h-screen bg-[#16121b] text-white ${embedded ? "pb-10" : "pb-28"}`}>
+      <header className={`mx-auto flex items-center gap-3 px-4 pt-6 pb-2 ${embedded ? "max-w-6xl" : "max-w-lg"}`}>
         <Link href="/" aria-label="Volver a Rayte" className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 transition hover:bg-white/20">
           <ArrowLeft className="h-5 w-5" />
         </Link>
@@ -300,7 +310,7 @@ export default function ViajesClient({ crossItems = [], crossTitle }: { crossIte
         <span className="ml-auto rounded-full bg-white/10 px-3 py-1 text-[11px] font-black text-white/70">Beta</span>
       </header>
 
-      <div className="mx-auto max-w-lg px-4 pt-4">
+      <div className={`mx-auto px-4 pt-4 ${embedded ? "max-w-6xl" : "max-w-lg"}`}>
         {phase === "form" && (
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
             <h1 className="text-[26px] font-black tracking-tight">¿A dónde vas?</h1>
@@ -432,7 +442,7 @@ export default function ViajesClient({ crossItems = [], crossTitle }: { crossIte
               )}
             </div>
 
-            <div className="mt-5 space-y-2.5">
+            <div className={`mt-5 ${embedded ? "grid gap-2.5 md:grid-cols-2 xl:grid-cols-4" : "space-y-2.5"}`}>
               {VEHICLES.map((v) => {
                 const active = vehicle.id === v.id;
                 const Icon = v.icon;
