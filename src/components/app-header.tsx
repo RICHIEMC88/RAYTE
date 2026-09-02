@@ -79,9 +79,9 @@ export default function AppHeader() {
                     value={draft}
                     onChange={(e) => setDraft(e.target.value)}
                     placeholder="Escribe tu dirección"
-                    className="w-56 rounded-full bg-white px-3.5 py-1.5 text-xs font-bold text-ink shadow-md outline-none"
+                    className="w-56 rounded-full bg-white px-3.5 py-1.5 text-[15px] font-bold text-ink shadow-md outline-none"
                   />
-                  <button className="rounded-full bg-ink px-3 py-1.5 text-xs font-black text-white">OK</button>
+                  <button className="rounded-full bg-ink px-3 py-1.5 text-[15px] font-black text-white">OK</button>
                 </form>
               ) : (
                 <button
@@ -171,9 +171,9 @@ export default function AppHeader() {
                       value={draft}
                       onChange={(e) => setDraft(e.target.value)}
                       placeholder="Dirección"
-                      className="w-full rounded-full bg-white px-3 py-1 text-xs font-bold text-ink outline-none"
+                      className="w-full rounded-full bg-white px-3 py-1 text-[15px] font-bold text-ink outline-none"
                     />
-                    <button className="rounded-full bg-ink px-2.5 py-1 text-xs font-black text-white">OK</button>
+                    <button className="rounded-full bg-ink px-2.5 py-1 text-[15px] font-black text-white">OK</button>
                   </form>
                 ) : (
                   <button

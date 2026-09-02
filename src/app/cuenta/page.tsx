@@ -349,7 +349,7 @@ export default function CuentaPage() {
                 <ReceiptText className="mx-auto h-10 w-10 text-brand mb-2 opacity-80" />
                 <p className="text-[15px] font-black text-ink">Aún no has realizado pedidos</p>
                 <p className="text-[12.5px] font-bold text-ink-soft mt-1">Explora restaurantes y panaderías para hacer tu primer pedido.</p>
-                <Link href="/" className="inline-block mt-4 rounded-full bg-brand px-5 py-2.5 text-xs font-black text-white">Explorar comida</Link>
+                <Link href="/" className="inline-block mt-4 rounded-full bg-brand px-5 py-2.5 text-[15px] font-black text-white">Explorar comida</Link>
               </div>
             ) : (
               orders.map((o) => (
@@ -393,7 +393,7 @@ export default function CuentaPage() {
                 <CalendarDays className="mx-auto h-10 w-10 text-[#7c3aed] mb-2 opacity-80" />
                 <p className="text-[15px] font-black text-ink">No tienes citas agendadas</p>
                 <p className="text-[12.5px] font-bold text-ink-soft mt-1">Agenda citas de belleza, bienestar, hogar, mascotas o médicos.</p>
-                <Link href="/servicios" className="inline-block mt-4 rounded-full bg-ink px-5 py-2.5 text-xs font-black text-white">Ver servicios</Link>
+                <Link href="/servicios" className="inline-block mt-4 rounded-full bg-ink px-5 py-2.5 text-[15px] font-black text-white">Ver servicios</Link>
               </div>
             ) : (
               appts?.map((a) => (
@@ -426,7 +426,7 @@ export default function CuentaPage() {
                 <Heart className="mx-auto h-10 w-10 text-brand mb-2 opacity-80" />
                 <p className="text-[15px] font-black text-ink">No tienes favoritos aún</p>
                 <p className="text-[12.5px] font-bold text-ink-soft mt-1">Toca el corazón en cualquier tienda o platillo para guardarlo aquí.</p>
-                <Link href="/" className="inline-block mt-4 rounded-full bg-brand px-5 py-2.5 text-xs font-black text-white">Explorar tiendas</Link>
+                <Link href="/" className="inline-block mt-4 rounded-full bg-brand px-5 py-2.5 text-[15px] font-black text-white">Explorar tiendas</Link>
               </div>
             ) : (
               <div className="space-y-2">

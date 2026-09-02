@@ -106,7 +106,7 @@ export default async function ServicioDetailPage({
           <ul className="mt-3 space-y-2">
             {service.includes.map((inc) => (
               <li key={inc} className="flex items-center gap-2 text-[14px] font-bold text-ink-soft">
-                <span className="flex h-5 w-5 items-center justify-center rounded-full text-xs font-black" style={{ backgroundColor: cat.soft, color: cat.accent }}>✓</span>
+                <span className="flex h-5 w-5 items-center justify-center rounded-full text-[15px] font-black" style={{ backgroundColor: cat.soft, color: cat.accent }}>✓</span>
                 {inc}
               </li>
             ))}

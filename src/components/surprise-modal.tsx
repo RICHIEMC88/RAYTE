@@ -138,7 +138,7 @@ export default function SurpriseModal({
                         <p className="truncate text-[14.5px] leading-tight font-extrabold">{dish.name}</p>
                         <p className="mt-0.5 line-clamp-1 text-[12px] font-semibold text-ink-soft">{dish.description}</p>
                         <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                          <span className="text-[13.5px] font-black text-brand">{formatMXN(dish.price)}</span>
+                          <span className="text-sm font-black text-brand">{formatMXN(dish.price)}</span>
                           <span className="flex min-w-0 items-center gap-1 rounded-full bg-mist px-2 py-0.5 text-[10.5px] font-black text-ink-soft">
                             <Store className="h-3 w-3 shrink-0 text-brand" /> <span className="truncate">{restaurant.name}</span>
                           </span>

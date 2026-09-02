@@ -618,7 +618,7 @@ export function RestaurantList({ restaurants, dishes = [], crossItems = [], cros
               <span className="text-4xl">❤️</span>
               <p className="mt-3 text-lg font-black">Aún no tienes tiendas en favoritos</p>
               <p className="mt-1 max-w-xs text-sm font-bold text-ink-soft">Toca el corazón en tus tiendas favoritas para verlas rápidamente aquí.</p>
-              <button onClick={() => setFavOnly(false)} className="mt-4 rounded-full bg-brand px-5 py-2.5 text-xs font-black text-white">Ver todas las tiendas</button>
+              <button onClick={() => setFavOnly(false)} className="mt-4 rounded-full bg-brand px-5 py-2.5 text-[15px] font-black text-white">Ver todas las tiendas</button>
             </>
           ) : (
             <>

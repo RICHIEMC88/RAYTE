@@ -141,16 +141,16 @@ export default function RestaurantClient({
 
               <div className="min-w-0 flex-1 pt-0.5">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="truncate text-[19px] leading-tight font-black tracking-tight text-ink sm:text-[22px]">{store.name}</h1>
+                  <h1 className="truncate text-[21px] leading-tight font-black tracking-tight text-ink sm:text-[24px]">{store.name}</h1>
                   {store.promo && (
-                    <span className="inline-flex max-w-full items-center gap-1 rounded-full bg-brand-soft px-2.5 py-1 text-[10px] font-black text-brand">
+                    <span className="inline-flex max-w-full items-center gap-1 rounded-full bg-brand-soft px-2.5 py-1 text-[11px] font-black text-brand">
                       <BadgePercent className="h-3.5 w-3.5 shrink-0" />
                       <span className="truncate">{store.promo}</span>
                     </span>
                   )}
                 </div>
 
-                <div className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11.5px] font-bold text-ink-soft">
+                <div className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[12.5px] font-bold text-ink-soft">
                   <span className="flex items-center gap-1">
                     <Star className="h-3.5 w-3.5 fill-amber-pop text-amber-pop" />
                     {store.rating.toFixed(1)}
@@ -162,32 +162,32 @@ export default function RestaurantClient({
                   </span>
                 </div>
 
-                <p className="mt-1.5 line-clamp-2 text-[11.5px] font-semibold leading-relaxed text-ink-soft">{store.description}</p>
+                <p className="mt-1.5 line-clamp-2 text-[12.5px] font-semibold leading-relaxed text-ink-soft">{store.description}</p>
               </div>
             </div>
 
             <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
               <div className="rounded-2xl bg-[#f7f7f7] px-3 py-2">
-                <p className="text-[10px] font-black uppercase tracking-wide text-ink-soft">Tiempo</p>
-                <p className="mt-0.5 text-[12px] font-black text-ink">{store.timeMin}-{store.timeMax} min</p>
+                <p className="text-[11px] font-black uppercase tracking-wide text-ink-soft">Tiempo</p>
+                <p className="mt-0.5 text-[13px] font-black text-ink">{store.timeMin}-{store.timeMax} min</p>
               </div>
               <div className="rounded-2xl bg-[#f7f7f7] px-3 py-2">
-                <p className="text-[10px] font-black uppercase tracking-wide text-ink-soft">Envío</p>
-                <p className={`mt-0.5 text-[12px] font-black ${store.deliveryFee === 0 ? "text-[#0ea55b]" : "text-ink"}`}>
+                <p className="text-[11px] font-black uppercase tracking-wide text-ink-soft">Envío</p>
+                <p className={`mt-0.5 text-[13px] font-black ${store.deliveryFee === 0 ? "text-[#0ea55b]" : "text-ink"}`}>
                   {store.deliveryFee === 0 ? "Gratis" : formatMXN(store.deliveryFee)}
                 </p>
               </div>
               <div className="rounded-2xl bg-[#f7f7f7] px-3 py-2">
-                <p className="text-[10px] font-black uppercase tracking-wide text-ink-soft">Distancia</p>
-                <p className="mt-0.5 text-[12px] font-black text-ink">{store.distanceKm.toFixed(1)} km</p>
+                <p className="text-[11px] font-black uppercase tracking-wide text-ink-soft">Distancia</p>
+                <p className="mt-0.5 text-[13px] font-black text-ink">{store.distanceKm.toFixed(1)} km</p>
               </div>
               <div className="rounded-2xl bg-[#f7f7f7] px-3 py-2">
-                <p className="text-[10px] font-black uppercase tracking-wide text-ink-soft">Modalidad</p>
-                <p className="mt-0.5 text-[12px] font-black text-ink">{store.allowsPickup ? "Recoger / Domicilio" : "Solo domicilio"}</p>
+                <p className="text-[11px] font-black uppercase tracking-wide text-ink-soft">Modalidad</p>
+                <p className="mt-0.5 text-[13px] font-black text-ink">{store.allowsPickup ? "Recoger / Domicilio" : "Solo domicilio"}</p>
               </div>
             </div>
 
-            <div className="mt-2.5 flex items-center gap-2 rounded-2xl bg-[#f7f7f7] px-3 py-2 text-[11px] font-bold text-ink">
+            <div className="mt-2.5 flex items-center gap-2 rounded-2xl bg-[#f7f7f7] px-3 py-2 text-[12px] font-bold text-ink">
               <MapPin className="h-3.5 w-3.5 shrink-0 text-brand" />
               <span className="truncate">{store.address}</span>
             </div>
@@ -233,7 +233,7 @@ export default function RestaurantClient({
               <button
                 type="button"
                 onClick={() => setPopularOnly((v) => !v)}
-                className={`shrink-0 rounded-full px-3 py-2.5 text-[10.5px] font-black transition ${popularOnly ? "bg-brand text-white shadow-[0_8px_18px_var(--brand-glow)]" : "border border-brand/10 bg-brand-soft text-brand"}`}
+                className={`shrink-0 rounded-full px-3 py-2.5 text-[11.5px] font-black transition ${popularOnly ? "bg-brand text-white shadow-[0_8px_18px_var(--brand-glow)]" : "border border-brand/10 bg-brand-soft text-brand"}`}
               >
                 🔥 Top
               </button>
@@ -241,7 +241,7 @@ export default function RestaurantClient({
               <button
                 type="button"
                 onClick={() => setScheduleOpen(true)}
-                className={`shrink-0 rounded-full px-3 py-2.5 text-[10.5px] font-black transition ${prefLabel ? "bg-[#1d6ae5] text-white shadow-[0_8px_18px_rgba(29,106,229,0.22)]" : "border border-[#1d6ae5]/10 bg-[#edf7ff] text-[#1d6ae5]"}`}
+                className={`shrink-0 rounded-full px-3 py-2.5 text-[11.5px] font-black transition ${prefLabel ? "bg-[#1d6ae5] text-white shadow-[0_8px_18px_rgba(29,106,229,0.22)]" : "border border-[#1d6ae5]/10 bg-[#edf7ff] text-[#1d6ae5]"}`}
               >
                 {prefLabel ? "Hora" : "Programar"}
               </button>
@@ -249,16 +249,16 @@ export default function RestaurantClient({
 
             <div className="flex items-center justify-between gap-2">
               <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-                <span className="rounded-full bg-mist px-2.5 py-1 text-[10px] font-black text-ink-soft">
+                <span className="rounded-full bg-mist px-2.5 py-1 text-[11px] font-black text-ink-soft">
                   {filteredMenu.length} {filteredMenu.length === 1 ? "resultado" : "resultados"}
                 </span>
                 {popularOnly && (
-                  <span className="rounded-full bg-brand-soft px-2.5 py-1 text-[10px] font-black text-brand">
+                  <span className="rounded-full bg-brand-soft px-2.5 py-1 text-[11px] font-black text-brand">
                     Solo top
                   </span>
                 )}
                 {prefLabel && (
-                  <span className="rounded-full bg-[#edf7ff] px-2.5 py-1 text-[10px] font-black text-[#1d6ae5]">
+                  <span className="rounded-full bg-[#edf7ff] px-2.5 py-1 text-[11px] font-black text-[#1d6ae5]">
                     {prefLabel}
                   </span>
                 )}
@@ -268,7 +268,7 @@ export default function RestaurantClient({
                 <button
                   type="button"
                   onClick={clearUiFilters}
-                  className="shrink-0 rounded-full border border-black/8 bg-white px-3 py-1.5 text-[10.5px] font-black text-ink-soft transition hover:text-ink"
+                  className="shrink-0 rounded-full border border-black/8 bg-white px-3 py-1.5 text-[11.5px] font-black text-ink-soft transition hover:text-ink"
                 >
                   Limpiar
                 </button>
@@ -284,7 +284,7 @@ export default function RestaurantClient({
                       key={sec}
                       type="button"
                       onClick={() => document.getElementById(`sec-${anchor(sec)}`)?.scrollIntoView({ behavior: "smooth", block: "start" })}
-                      className="flex shrink-0 items-center gap-2 rounded-full border border-black/6 bg-white px-3 py-2 text-left text-[10.5px] font-black text-ink transition hover:border-black/12 hover:bg-[#fafafa] active:scale-[0.98]"
+                      className="flex shrink-0 items-center gap-2 rounded-full border border-black/6 bg-white px-3 py-2 text-left text-[11.5px] font-black text-ink transition hover:border-black/12 hover:bg-[#fafafa] active:scale-[0.98]"
                     >
                       <Icon className="h-3.5 w-3.5 shrink-0 text-brand" strokeWidth={2.3} />
                       <span className="truncate">{sec}</span>
@@ -303,18 +303,18 @@ export default function RestaurantClient({
           <section className="mb-5 rounded-[24px] border border-brand/10 bg-white p-3 shadow-[0_8px_22px_rgba(0,0,0,0.04)]">
             <div className="flex items-center justify-between gap-2">
               <div>
-                <h2 className="flex items-center gap-2 text-[15px] font-black text-ink">
+                <h2 className="flex items-center gap-2 text-[16.5px] font-black text-ink">
                   <span className="flex h-8 w-8 items-center justify-center rounded-2xl bg-brand-soft text-brand">
                     <Flame className="h-4.5 w-4.5" />
                   </span>
                   Lo más pedido
                 </h2>
-                <p className="mt-0.5 text-[11px] font-bold text-ink-soft">Lo que más pide la gente en {store.name}</p>
+                <p className="mt-0.5 text-[12px] font-bold text-ink-soft">Lo que más pide la gente en {store.name}</p>
               </div>
               <button
                 type="button"
                 onClick={() => setPopularOnly(true)}
-                className="rounded-full bg-brand-soft px-3 py-1.5 text-[10px] font-black text-brand transition hover:bg-brand hover:text-white"
+                className="rounded-full bg-brand-soft px-3 py-1.5 text-[11px] font-black text-brand transition hover:bg-brand hover:text-white"
               >
                 Solo top
               </button>
@@ -333,12 +333,12 @@ export default function RestaurantClient({
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-2">
-                      <p className="line-clamp-2 text-[12px] leading-tight font-black text-ink">{product.name}</p>
-                      <span className="shrink-0 rounded-full bg-brand-soft px-1.5 py-0.5 text-[9px] font-black text-brand">Top</span>
+                      <p className="line-clamp-2 text-[13px] leading-tight font-black text-ink">{product.name}</p>
+                      <span className="shrink-0 rounded-full bg-brand-soft px-1.5 py-0.5 text-[10px] font-black text-brand">Top</span>
                     </div>
-                    <p className="mt-0.5 line-clamp-1 text-[10px] font-semibold text-ink-soft">{product.description}</p>
+                    <p className="mt-0.5 line-clamp-1 text-[11px] font-semibold text-ink-soft">{product.description}</p>
                     <div className="mt-1.5 flex items-center justify-between gap-2">
-                      <span className="text-[12px] font-black text-brand">{formatMXN(product.price)}</span>
+                      <span className="text-[13px] font-black text-brand">{formatMXN(product.price)}</span>
                       <AddButton onClick={() => setSelected(product)} />
                     </div>
                   </div>
@@ -366,13 +366,13 @@ export default function RestaurantClient({
                       <Icon className="h-4.5 w-4.5" strokeWidth={2.3} />
                     </span>
                     <div className="min-w-0">
-                      <h2 className="truncate text-[15px] font-black tracking-tight text-ink">{section}</h2>
-                      <p className="text-[10px] font-bold text-ink-soft">{items.length} {items.length === 1 ? "opción" : "opciones"}</p>
+                      <h2 className="truncate text-[16.5px] font-black tracking-tight text-ink">{section}</h2>
+                      <p className="text-[11px] font-bold text-ink-soft">{items.length} {items.length === 1 ? "opción" : "opciones"}</p>
                     </div>
                   </div>
 
                   {hasPopularItems && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-brand-soft px-2.5 py-1 text-[9.5px] font-black text-brand">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-brand-soft px-2.5 py-1 text-[10.5px] font-black text-brand">
                       <Flame className="h-3 w-3" />
                       Top
                     </span>
@@ -395,16 +395,16 @@ export default function RestaurantClient({
                       <div className="min-w-0 flex-1">
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
-                            <p className="truncate text-[13.5px] leading-tight font-black text-ink">{product.name}</p>
-                            <p className="mt-0.5 line-clamp-2 text-[11px] font-semibold leading-snug text-ink-soft">{product.description}</p>
+                            <p className="truncate text-[15px] leading-tight font-black text-ink">{product.name}</p>
+                            <p className="mt-0.5 line-clamp-2 text-[12px] font-semibold leading-snug text-ink-soft">{product.description}</p>
                           </div>
-                          <span className="shrink-0 text-[12px] font-black text-brand">{formatMXN(product.price)}</span>
+                          <span className="shrink-0 text-[13px] font-black text-brand">{formatMXN(product.price)}</span>
                         </div>
 
                         <div className="mt-2 flex items-center justify-between gap-2">
                           <div className="flex min-w-0 flex-wrap gap-1.5">
-                            {product.popular && <span className="rounded-full bg-brand-soft px-2 py-1 text-[8.5px] font-black text-brand">Top</span>}
-                            <span className="rounded-full bg-[#f7f7f7] px-2 py-1 text-[8.5px] font-black text-ink-soft">Toca para personalizar</span>
+                            {product.popular && <span className="rounded-full bg-brand-soft px-2 py-1 text-[9.5px] font-black text-brand">Top</span>}
+                            <span className="rounded-full bg-[#f7f7f7] px-2 py-1 text-[9.5px] font-black text-ink-soft">Toca para personalizar</span>
                           </div>
                           <AddButton onClick={() => setSelected(product)} />
                         </div>
