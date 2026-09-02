@@ -25,14 +25,14 @@
   --ink-soft: #6b7280;
   --mist: #f3f4f6;
   --amber-pop: #fbbf24;
-  --app-text-scale: 1.05;
+  --app-text-scale: 1.00;
 }
 
 body {
   font-family: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
 }
 
-/* Ajuste fino: bajamos un poco la tipografía para que no se vea sobredimensionada */
+/* Escala tipográfica base, calibrada para verse más cerca de Uber Eats */
 .text-xs { font-size: calc(0.75rem * var(--app-text-scale)) !important; }
 .text-sm { font-size: calc(0.875rem * var(--app-text-scale)) !important; }
 .text-base { font-size: calc(1rem * var(--app-text-scale)) !important; }
