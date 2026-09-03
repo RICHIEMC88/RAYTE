@@ -191,6 +191,296 @@ function ChipIcon({ kind }: { kind: "18" | "rx" | "frio" }) {
   return <Snowflake className="h-3.5 w-3.5" />;
 }
 
+type CatalogExtraChoice = { name: string; price: number; productId: number | null };
+type DraftLike = { name?: string; description?: string; section?: string; forceParrilla?: boolean };
+type ExtraProfile =
+  | "parrilla"
+  | "hamburguesas"
+  | "pizza"
+  | "sushi"
+  | "mariscos"
+  | "tacos"
+  | "pollo"
+  | "panaderias"
+  | "postres"
+  | "saludable"
+  | "bebidas"
+  | "cafeterias"
+  | "mercado"
+  | "farmacia"
+  | "mascotas"
+  | "general";
+
+const EXTRA_PROFILE_META: Record<ExtraProfile, { label: string; keywords: string[]; suggestions: { name: string; price: number }[] }> = {
+  parrilla: {
+    label: "asador / parrilla",
+    keywords: ["aguacate", "cebollita", "cebollitas", "chicharron", "chicharrón", "costra", "frijoles", "charros", "guacamole", "nopal", "papa asada", "queso", "salsa macha", "tortilla", "tuetano", "tuétano", "chimichurri"],
+    suggestions: [
+      { name: "Aguacate hass fresco", price: 20 },
+      { name: "Cebollitas cambray asadas", price: 18 },
+      { name: "Frijoles charros", price: 25 },
+      { name: "Guacamole artesanal", price: 28 },
+      { name: "Queso gratinado", price: 22 },
+      { name: "Salsa macha", price: 12 },
+    ],
+  },
+  hamburguesas: {
+    label: "hamburguesas",
+    keywords: ["aderezo", "aguacate", "carne", "cebolla caramelizada", "cheddar", "gouda", "jalapeno", "jalapeño", "papa", "papas", "queso", "tocino", "bacon"],
+    suggestions: [
+      { name: "Aguacate hass fresco", price: 20 },
+      { name: "Carne extra", price: 38 },
+      { name: "Jalapeños toreados", price: 10 },
+      { name: "Papas a la francesa", price: 28 },
+      { name: "Queso gouda gratinado", price: 18 },
+      { name: "Tocino crujiente", price: 22 },
+    ],
+  },
+  pizza: {
+    label: "pizza / italiana",
+    keywords: ["ajo", "champinon", "champiñon", "chimichurri", "gouda", "mozzarella", "orilla", "parmesano", "pepperoni", "peperoncino", "queso", "ricotta"],
+    suggestions: [
+      { name: "Champiñones frescos salteados", price: 20 },
+      { name: "Orilla rellena de queso", price: 35 },
+      { name: "Pepperoni extra", price: 25 },
+      { name: "Queso mozzarella extra", price: 25 },
+      { name: "Salsa de ajo y parmesano", price: 15 },
+    ],
+  },
+  sushi: {
+    label: "sushi / japonesa",
+    keywords: ["aguacate", "ajonjoli", "ajonjolí", "anguila", "cebollin", "cebollín", "chipotle", "crema", "jengibre", "masago", "philadelphia", "queso crema", "soya", "spicy", "tampico", "unagi", "wasabi"],
+    suggestions: [
+      { name: "Aguacate fresco extra", price: 18 },
+      { name: "Queso crema Philadelphia extra", price: 16 },
+      { name: "Salsa anguila dulce", price: 12 },
+      { name: "Salsa tampico", price: 24 },
+      { name: "Soya, jengibre y wasabi extra", price: 10 },
+    ],
+  },
+  mariscos: {
+    label: "mariscos",
+    keywords: ["aderezo tartara", "aderezo tártara", "aguacate", "camaron", "camarón", "cebolla morada", "clamato", "galletas", "limon", "limón", "pepino", "picante", "salsa negra"],
+    suggestions: [
+      { name: "Aguacate fresco extra", price: 22 },
+      { name: "Galletas saladas extra", price: 8 },
+      { name: "Limón extra", price: 8 },
+      { name: "Pepino y cebolla morada", price: 12 },
+      { name: "Salsa negra y picante", price: 10 },
+    ],
+  },
+  tacos: {
+    label: "tacos / mexicana",
+    keywords: ["cebollita", "cebollitas", "consome", "consomé", "costra", "guacamole", "nopal", "queso", "salsa", "tortilla"],
+    suggestions: [
+      { name: "Cebollitas cambray asadas", price: 15 },
+      { name: "Costra de queso", price: 22 },
+      { name: "Guacamole artesanal", price: 25 },
+      { name: "Nopal asado", price: 12 },
+      { name: "Salsa macha", price: 10 },
+    ],
+  },
+  pollo: {
+    label: "pollo / alitas",
+    keywords: ["aderezo", "aros", "bbq", "buffalo", "cheddar", "dip", "habanero", "papas", "ranch", "salsa"],
+    suggestions: [
+      { name: "Aderezo ranch", price: 14 },
+      { name: "Aros de cebolla", price: 28 },
+      { name: "Papas gajo", price: 26 },
+      { name: "Queso cheddar", price: 16 },
+      { name: "Salsa BBQ extra", price: 12 },
+    ],
+  },
+  panaderias: {
+    label: "panadería",
+    keywords: ["azucar", "azúcar", "cajeta", "canela", "leche", "mantequilla", "mermelada", "nutella", "topping"],
+    suggestions: [
+      { name: "Cajeta quemada", price: 15 },
+      { name: "Mantequilla de rancho", price: 10 },
+      { name: "Mermelada de fresa", price: 12 },
+      { name: "Nutella para untar", price: 16 },
+    ],
+  },
+  postres: {
+    label: "postres",
+    keywords: ["caramelo", "chantilly", "chocolate", "crema batida", "fresa", "fresas", "helado", "nuez", "topping", "vainilla"],
+    suggestions: [
+      { name: "Bola de helado de vainilla", price: 22 },
+      { name: "Crema batida chantilly", price: 10 },
+      { name: "Fresas frescas picadas", price: 16 },
+      { name: "Topping de chocolate", price: 14 },
+    ],
+  },
+  saludable: {
+    label: "saludable / fit",
+    keywords: ["aderezo", "aguacate", "feta", "huevo", "proteina", "proteína", "semillas", "whey"],
+    suggestions: [
+      { name: "Aguacate hass en cubos", price: 18 },
+      { name: "Aderezo de cilantro y limón", price: 10 },
+      { name: "Huevo cocido orgánico", price: 14 },
+      { name: "Pollo a la plancha extra", price: 32 },
+      { name: "Semillas de chía y cáñamo", price: 12 },
+    ],
+  },
+  bebidas: {
+    label: "bebidas",
+    keywords: ["agua mineral", "clamato", "escarchado", "espresso", "hielo", "jarabe", "leche", "limon", "limón", "mezclador", "miguelito", "mixer", "naranja", "refresco", "syrup", "vaso"],
+    suggestions: [
+      { name: "Agua mineral", price: 20 },
+      { name: "Bolsa de hielo", price: 25 },
+      { name: "Limón extra", price: 8 },
+      { name: "Shot de espresso extra", price: 15 },
+      { name: "Vaso escarchado", price: 18 },
+    ],
+  },
+  cafeterias: {
+    label: "cafetería",
+    keywords: ["almendra", "avena", "canela", "espresso", "leche", "miel", "shot", "syrup", "vainilla"],
+    suggestions: [
+      { name: "Leche de almendras u avena", price: 12 },
+      { name: "Miel de abeja", price: 10 },
+      { name: "Shot de espresso extra", price: 15 },
+      { name: "Syrup de vainilla", price: 10 },
+    ],
+  },
+  mercado: {
+    label: "mercado",
+    keywords: ["bolsa", "empaque", "protector", "termico", "térmico"],
+    suggestions: [
+      { name: "Bolsa ecológica reutilizable", price: 15 },
+      { name: "Empaque térmico", price: 12 },
+    ],
+  },
+  farmacia: {
+    label: "farmacia",
+    keywords: ["confidencial", "sello", "seguridad"],
+    suggestions: [
+      { name: "Empaque confidencial discreto", price: 0 },
+      { name: "Bolsa con sello de seguridad", price: 5 },
+    ],
+  },
+  mascotas: {
+    label: "mascotas",
+    keywords: ["catnip", "churu", "premio", "snack"],
+    suggestions: [
+      { name: "Premio sorpresa", price: 20 },
+      { name: "Snack cremoso", price: 22 },
+    ],
+  },
+  general: {
+    label: "tu tipo de producto",
+    keywords: ["aderezo", "aguacate", "limon", "limón", "papas", "queso", "salsa"],
+    suggestions: [
+      { name: "Aguacate fresco extra", price: 20 },
+      { name: "Papas a la francesa", price: 28 },
+      { name: "Queso extra", price: 18 },
+      { name: "Salsa extra", price: 10 },
+    ],
+  },
+};
+
+function normalizeCatalogText(value: string) {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function isGrillStoreForCatalog(store: Restaurant) {
+  const tags = normalizeCatalogText((store.tags ?? []).join(" "));
+  return store.categorySlug === "restaurantes" && (
+    store.slug === "patio-de-humo-asadero-time" ||
+    tags.includes("cortes") ||
+    tags.includes("parrilladas") ||
+    tags.includes("asador") ||
+    tags.includes("carneasada")
+  );
+}
+
+function inferExtraProfile(store: Restaurant, draft: DraftLike = {}): ExtraProfile {
+  if (draft.forceParrilla) return "parrilla";
+
+  const text = normalizeCatalogText([
+    store.name,
+    store.slug,
+    store.description,
+    draft.name ?? "",
+    draft.description ?? "",
+    draft.section ?? "",
+    ...(store.tags ?? []),
+  ].join(" "));
+
+  const has = (words: string[]) => words.some((word) => text.includes(normalizeCatalogText(word)));
+
+  if (has(["bebidas", "cerveza", "vino", "licor", "coctel", "cocktail", "agua fresca", "refresco", "gaseosa", "soda", "limonada", "malteada", "shake", "te", "té", "cafe", "café", "matcha", "sake"])) {
+    if (has(["cafe", "café", "latte", "espresso", "capuccino", "capuchino", "frappe", "frappé", "matcha"])) return "cafeterias";
+    return "bebidas";
+  }
+  if (store.categorySlug == "farmacia") return "farmacia";
+  if (store.categorySlug == "mascotas") return "mascotas";
+  if (store.categorySlug == "mercado") return "mercado";
+  if (store.categorySlug == "panaderias" || has(["panaderia", "panadería", "concha", "croissant", "baguette", "cuernito", "bolillo", "pan dulce"])) return "panaderias";
+  if (store.categorySlug == "postres" || has(["postre", "helado", "dona", "donas", "crepa", "waffle", "pastel", "brownie"])) return "postres";
+  if (store.categorySlug == "saludable" || has(["saludable", "bowl", "ensalada", "fit", "proteina", "proteína", "smoothie", "nutricion", "nutrición"])) return "saludable";
+  if (has(["mariscos", "marisqueria", "marisquería", "seafood", "ceviche", "camaron", "camarón", "atun", "atún", "pulpo", "ostion", "ostión", "pescado"])) return "mariscos";
+  if (has(["sushi", "roll", "rollos", "japonesa", "ramen", "temaki", "nigiri", "gyoza", "miso"])) return "sushi";
+  if (has(["pizza", "italiana", "calzone", "lasaña", "lasagna", "pasta", "pepperoni", "margherita"])) return "pizza";
+  if (has(["burger", "hamburguesa", "smash"])) return "hamburguesas";
+  if (has(["alitas", "broaster", "boneless", "tenders", "pollo crispy", "pollo"])) return "pollo";
+  if (has(["taco", "taqueria", "taquería", "birria", "quesataco", "pastor", "burrito", "quesadilla"])) return "tacos";
+  if (isGrillStoreForCatalog(store) || has(["parrillada", "arrachera", "rib eye", "ribeye", "new york", "cowboy", "sirloin", "picanha", "picaña", "tomahawk", "carbon", "carbón", "asador"])) return "parrilla";
+
+  if (store.categorySlug in EXTRA_PROFILE_META) return store.categorySlug as ExtraProfile;
+  return "general";
+}
+
+function buildLogicalCatalogExtras({
+  existingRestaurantExtras,
+  selectedExtras = [],
+  store,
+  draft,
+}: {
+  existingRestaurantExtras: ProductExtra[];
+  selectedExtras?: { name: string; price: number }[];
+  store: Restaurant;
+  draft?: DraftLike;
+}) {
+  const profile = inferExtraProfile(store, draft);
+  const meta = EXTRA_PROFILE_META[profile];
+  const unique = new Map<string, CatalogExtraChoice>();
+
+  for (const e of existingRestaurantExtras) {
+    const key = normalizeCatalogText(e.name);
+    if (!unique.has(key)) unique.set(key, { name: e.name, price: e.price, productId: e.productId ?? null });
+  }
+
+  const suggested = Array.from(unique.values()).filter((extra) =>
+    meta.keywords.some((word) => normalizeCatalogText(extra.name).includes(normalizeCatalogText(word)))
+  );
+
+  for (const extra of selectedExtras) {
+    const key = normalizeCatalogText(extra.name);
+    if (!unique.has(key)) unique.set(key, { name: extra.name, price: extra.price, productId: null });
+  }
+
+  const merged = new Map<string, { name: string; price: number }>();
+  for (const extra of suggested) {
+    merged.set(normalizeCatalogText(extra.name), { name: extra.name, price: extra.price });
+  }
+  for (const extra of selectedExtras) {
+    merged.set(normalizeCatalogText(extra.name), { name: extra.name, price: extra.price });
+  }
+
+  return {
+    profile,
+    profileLabel: meta.label,
+    suggestions: meta.suggestions,
+    extras: Array.from(merged.values()).sort((a, b) => a.name.localeCompare(b.name, "es-MX")),
+  };
+}
+
 /* Fotos sugeridas de alta calidad para comida y platillos */
 const PHOTO_PRESETS = [
   { label: "Smash Burger", url: "https://images.pexels.com/photos/1639557/pexels-photo-1639557.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200" },
@@ -1206,6 +1496,7 @@ export default function SocioClient({ initialAccounts }: { initialAccounts: Acco
       {showAddProduct && data && (
         <AddProductModal
           restaurantId={data.store.id}
+          store={data.store}
           existingSections={sections}
           existingRestaurantExtras={sortedExtrasAlphabetical}
           rubro={rubro}
@@ -1231,6 +1522,7 @@ export default function SocioClient({ initialAccounts }: { initialAccounts: Acco
       {showAddCombo && data && (
         <AddComboModal
           restaurantId={data.store.id}
+          store={data.store}
           existingProducts={data.products}
           existingRestaurantExtras={sortedExtrasAlphabetical}
           rubro={rubro}
@@ -1256,6 +1548,7 @@ export default function SocioClient({ initialAccounts }: { initialAccounts: Acco
       {editingProduct && data && (
         <EditProductModal
           product={editingProduct}
+          store={data.store}
           existingSections={sections}
           existingRestaurantExtras={sortedExtrasAlphabetical}
           rubro={rubro}
@@ -1295,6 +1588,7 @@ export default function SocioClient({ initialAccounts }: { initialAccounts: Acco
       {showAddExtra && data && (
         <AddExtraModal
           restaurantId={data.store.id}
+          store={data.store}
           products={data.products}
           rubro={rubro}
           onClose={() => setShowAddExtra(false)}
@@ -1320,6 +1614,7 @@ export default function SocioClient({ initialAccounts }: { initialAccounts: Acco
    ════════════════════════════════════════════════════════════ */
 function AddComboModal({
   restaurantId,
+  store,
   existingProducts,
   existingRestaurantExtras,
   rubro,
@@ -1327,6 +1622,7 @@ function AddComboModal({
   onAdded,
 }: {
   restaurantId: number;
+  store: Restaurant;
   existingProducts: Product[];
   existingRestaurantExtras: ProductExtra[];
   rubro: Rubro;
@@ -1344,16 +1640,17 @@ function AddComboModal({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  // Extras ordenados alfabéticamente A-Z
-  const restaurantCatalogExtras = useMemo(() => {
-    const map = new Map<string, { name: string; price: number }>();
-    for (const e of existingRestaurantExtras) {
-      if (!map.has(e.name.toLowerCase())) {
-        map.set(e.name.toLowerCase(), { name: e.name, price: e.price });
-      }
-    }
-    return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name, "es-MX"));
-  }, [existingRestaurantExtras]);
+  const logicalCatalog = useMemo(() => buildLogicalCatalogExtras({
+    existingRestaurantExtras,
+    selectedExtras,
+    store,
+    draft: {
+      name,
+      description: [description, ...selectedItems].join(" "),
+      section: "Combos & Paquetes",
+      forceParrilla: isPortionGrill,
+    },
+  }), [existingRestaurantExtras, selectedExtras, store, name, description, selectedItems, isPortionGrill]);
 
   const toggleItem = (itemName: string) => {
     const next = selectedItems.includes(itemName)
@@ -1621,7 +1918,7 @@ function AddComboModal({
           <div className="overflow-hidden rounded-2xl border border-black/10 p-3.5 bg-mist/50">
             <div className="flex items-center justify-between">
               <label className="text-[12px] font-black uppercase tracking-wider flex items-center gap-1.5 text-ink">
-                <Sparkles className="h-4 w-4 text-[#7c3aed]" /> Extras para este combo (A - Z)
+                <Sparkles className="h-4 w-4 text-[#7c3aed]" /> Extras lógicos para {logicalCatalog.profileLabel} (A - Z)
               </label>
               <span className="rounded-full bg-white px-2 py-0.5 text-[10.5px] font-black shadow-2xs text-[#7c3aed]">
                 {selectedExtras.length} seleccionados
@@ -1629,7 +1926,11 @@ function AddComboModal({
             </div>
 
             <div className="mt-2 space-y-1.5 max-h-36 overflow-y-auto pr-1">
-              {restaurantCatalogExtras.map((ext) => {
+              {logicalCatalog.extras.length === 0 ? (
+                <p className="rounded-xl bg-white p-3 text-center text-[11.5px] font-bold text-ink-soft">
+                  No hay extras lógicos registrados para {logicalCatalog.profileLabel}. Crea primero el extra correcto en tu catálogo.
+                </p>
+              ) : logicalCatalog.extras.map((ext) => {
                 const isChecked = selectedExtras.some((e) => e.name.toLowerCase() === ext.name.toLowerCase());
                 return (
                   <button
@@ -1682,6 +1983,7 @@ function AddComboModal({
    ════════════════════════════════════════════════════════════ */
 function AddProductModal({
   restaurantId,
+  store,
   existingSections,
   existingRestaurantExtras,
   rubro,
@@ -1689,6 +1991,7 @@ function AddProductModal({
   onAdded,
 }: {
   restaurantId: number;
+  store: Restaurant;
   existingSections: string[];
   existingRestaurantExtras: ProductExtra[];
   rubro: Rubro;
@@ -1715,16 +2018,18 @@ function AddProductModal({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  // Obtener lista única de extras del negocio ordenados alfabéticamente A-Z
-  const restaurantCatalogExtras = useMemo(() => {
-    const map = new Map<string, { name: string; price: number }>();
-    for (const e of existingRestaurantExtras) {
-      if (!map.has(e.name.toLowerCase())) {
-        map.set(e.name.toLowerCase(), { name: e.name, price: e.price });
-      }
-    }
-    return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name, "es-MX"));
-  }, [existingRestaurantExtras]);
+  const finalSection = isCustomSection ? (customSection.trim() || "Especialidades") : section;
+
+  const logicalCatalog = useMemo(() => buildLogicalCatalogExtras({
+    existingRestaurantExtras,
+    selectedExtras,
+    store,
+    draft: {
+      name,
+      description,
+      section: finalSection,
+    },
+  }), [existingRestaurantExtras, selectedExtras, store, name, description, finalSection]);
 
   const toggleSelectExtra = (extra: { name: string; price: number }) => {
     setSelectedExtras((prev) => {
@@ -1750,8 +2055,6 @@ function AddProductModal({
     setError("");
     if (!name.trim()) return setError("Ingresa el nombre del platillo");
     if (!price || Number(price) < 1) return setError("Ingresa un precio válido en MXN");
-
-    const finalSection = isCustomSection ? (customSection.trim() || "Especialidades") : section;
 
     setSaving(true);
     try {
@@ -1932,7 +2235,7 @@ function AddProductModal({
           <div className="overflow-hidden rounded-2xl border border-black/10 p-3.5" style={{ backgroundColor: `${rubro.soft}35` }}>
             <div className="flex items-center justify-between">
               <label className="text-[12px] font-black uppercase tracking-wider flex items-center gap-1.5" style={{ color: rubro.accent }}>
-                <Sparkles className="h-4 w-4" /> Extras para este platillo (A - Z)
+                <Sparkles className="h-4 w-4" /> Extras lógicos para {logicalCatalog.profileLabel} (A - Z)
               </label>
               <span className="rounded-full bg-white px-2 py-0.5 text-[10.5px] font-black shadow-2xs" style={{ color: rubro.accent }}>
                 {selectedExtras.length} seleccionados
@@ -1944,12 +2247,12 @@ function AddProductModal({
 
             {/* LISTA DESPLEGABLE DE EXTRAS EXISTENTES A-Z */}
             <div className="mt-2.5 space-y-1.5 max-h-48 overflow-y-auto pr-1">
-              {restaurantCatalogExtras.length === 0 ? (
+              {logicalCatalog.extras.length === 0 ? (
                 <p className="rounded-xl bg-white p-3 text-center text-[11.5px] font-bold text-ink-soft shadow-2xs">
-                  Tu negocio aún no tiene extras registrados. Crea el primero abajo 👇
+                  No hay extras lógicos registrados para {logicalCatalog.profileLabel}. Crea el primero abajo 👇
                 </p>
               ) : (
-                restaurantCatalogExtras.map((ext) => {
+                logicalCatalog.extras.map((ext) => {
                   const isChecked = selectedExtras.some((e) => e.name.toLowerCase() === ext.name.toLowerCase());
                   return (
                     <button
@@ -2043,6 +2346,7 @@ function AddProductModal({
    ════════════════════════════════════════════════════════════ */
 function EditProductModal({
   product,
+  store,
   existingSections,
   existingRestaurantExtras,
   rubro,
@@ -2051,6 +2355,7 @@ function EditProductModal({
   onDeleted,
 }: {
   product: Product;
+  store: Restaurant;
   existingSections: string[];
   existingRestaurantExtras: ProductExtra[];
   rubro: Rubro;
@@ -2082,16 +2387,16 @@ function EditProductModal({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  // Catálogo completo ordenado alfabéticamente A-Z
-  const restaurantCatalogExtras = useMemo(() => {
-    const map = new Map<string, { name: string; price: number }>();
-    for (const e of existingRestaurantExtras) {
-      if (!map.has(e.name.toLowerCase())) {
-        map.set(e.name.toLowerCase(), { name: e.name, price: e.price });
-      }
-    }
-    return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name, "es-MX"));
-  }, [existingRestaurantExtras]);
+  const logicalCatalog = useMemo(() => buildLogicalCatalogExtras({
+    existingRestaurantExtras,
+    selectedExtras,
+    store,
+    draft: {
+      name,
+      description,
+      section,
+    },
+  }), [existingRestaurantExtras, selectedExtras, store, name, description, section]);
 
   const toggleSelectExtra = (extra: { name: string; price: number }) => {
     setSelectedExtras((prev) => {
@@ -2268,7 +2573,7 @@ function EditProductModal({
           <div className="overflow-hidden rounded-2xl border border-black/10 p-3.5" style={{ backgroundColor: `${rubro.soft}35` }}>
             <div className="flex items-center justify-between">
               <label className="text-[12px] font-black uppercase tracking-wider flex items-center gap-1.5" style={{ color: rubro.accent }}>
-                <Sparkles className="h-4 w-4" /> Extras para este platillo (A - Z)
+                <Sparkles className="h-4 w-4" /> Extras lógicos para {logicalCatalog.profileLabel} (A - Z)
               </label>
               <span className="rounded-full bg-white px-2 py-0.5 text-[10.5px] font-black shadow-2xs" style={{ color: rubro.accent }}>
                 {selectedExtras.length} seleccionados
@@ -2280,12 +2585,12 @@ function EditProductModal({
 
             {/* LISTA DESPLEGABLE */}
             <div className="mt-2.5 space-y-1.5 max-h-48 overflow-y-auto pr-1">
-              {restaurantCatalogExtras.length === 0 ? (
+              {logicalCatalog.extras.length === 0 ? (
                 <p className="rounded-xl bg-white p-3 text-center text-[11.5px] font-bold text-ink-soft">
-                  Sin extras registrados en tu catálogo.
+                  No hay extras lógicos registrados para {logicalCatalog.profileLabel}.
                 </p>
               ) : (
-                restaurantCatalogExtras.map((ext) => {
+                logicalCatalog.extras.map((ext) => {
                   const isChecked = selectedExtras.some((e) => e.name.toLowerCase() === ext.name.toLowerCase());
                   return (
                     <button
@@ -2386,12 +2691,14 @@ function EditProductModal({
    ════════════════════════════════════════════════════════════ */
 function AddExtraModal({
   restaurantId,
+  store,
   products,
   rubro,
   onClose,
   onAdded,
 }: {
   restaurantId: number;
+  store: Restaurant;
   products: Product[];
   rubro: Rubro;
   onClose: () => void;
@@ -2402,6 +2709,18 @@ function AddExtraModal({
   const [productId, setProductId] = useState<string>("all");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  const quickSuggestionProfile = useMemo(() => {
+    const linked = productId === "all" ? null : products.find((p) => String(p.id) === productId) ?? null;
+    return buildLogicalCatalogExtras({
+      existingRestaurantExtras: [],
+      selectedExtras: [],
+      store,
+      draft: linked
+        ? { name: linked.name, description: linked.description, section: linked.section }
+        : { name, section: rubro.catalogTitle, description: store.description },
+    });
+  }, [productId, products, store, name, rubro.catalogTitle]);
 
   const submit = async () => {
     setError("");
@@ -2458,9 +2777,9 @@ function AddExtraModal({
 
           {/* Sugerencias rápidas ordenadas A-Z */}
           <div>
-            <label className="text-[11px] font-black uppercase tracking-wider text-ink-soft">Sugerencias rápidas (A - Z)</label>
+            <label className="text-[11px] font-black uppercase tracking-wider text-ink-soft">Sugerencias rápidas para {quickSuggestionProfile.profileLabel}</label>
             <div className="no-scrollbar mt-1.5 flex flex-wrap gap-1.5">
-              {QUICK_EXTRA_SUGGESTIONS.map((sug) => (
+              {quickSuggestionProfile.suggestions.map((sug) => (
                 <button
                   key={sug.name}
                   type="button"
