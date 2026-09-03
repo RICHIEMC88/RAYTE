@@ -53,16 +53,16 @@ export default async function ServicioDetailPage({
               <span className="relative -mt-11 h-[76px] w-[76px] shrink-0 overflow-hidden rounded-[24px] border-4 border-white bg-white shadow-xl">
                 <Image src={service.image} alt={service.name} fill className="object-cover" sizes="76px" />
               </span>
-              <div className="min-w-0 flex-1 pt-1.5">
-                <h1 className="truncate text-[25px] leading-tight font-black tracking-tight">{service.name}</h1>
-                <div className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[12.5px] font-bold text-ink-soft">
-                  <span className="flex items-center gap-1"><Star className="h-3.5 w-3.5 fill-amber-pop text-amber-pop" /> {service.rating.toFixed(1)} <span className="font-semibold text-ink-soft/70">({service.ratingCount.toLocaleString("es-MX")})</span></span>
-                  <span className={`flex items-center gap-1 ${service.available ? "text-[#0ea55b]" : "text-brand"}`}>
-                    <span className={`h-2 w-2 rounded-full ${service.available ? "bg-[#0ea55b]" : "bg-brand"}`} />
-                    {service.available ? "Disponible" : "En pausa"}
-                  </span>
-                </div>
-              </div>
+              <div className="flex-1 pt-1.5" />
+            </div>
+
+            <h1 className="mt-2 text-[20px] leading-[1.08] font-black tracking-tight text-ink sm:text-[25px]">{service.name}</h1>
+            <div className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[12.5px] font-bold text-ink-soft">
+              <span className="flex items-center gap-1"><Star className="h-3.5 w-3.5 fill-amber-pop text-amber-pop" /> {service.rating.toFixed(1)} <span className="font-semibold text-ink-soft/70">({service.ratingCount.toLocaleString("es-MX")})</span></span>
+              <span className={`flex items-center gap-1 ${service.available ? "text-[#0ea55b]" : "text-brand"}`}>
+                <span className={`h-2 w-2 rounded-full ${service.available ? "bg-[#0ea55b]" : "bg-brand"}`} />
+                {service.available ? "Disponible" : "En pausa"}
+              </span>
             </div>
 
             <p className="mt-2.5 text-[13.5px] leading-snug font-semibold text-ink-soft">{service.description}</p>
