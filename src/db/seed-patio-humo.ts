@@ -3,6 +3,7 @@
 import "dotenv/config";
 import { db, pool } from "./index";
 import { restaurants, products, productExtras, partnerAccounts } from "./schema";
+import { hashPassword } from "../lib/password";
 import { eq } from "drizzle-orm";
 
 const px = (id: number) => `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200`;
@@ -281,7 +282,7 @@ async function main() {
     partnerName: "Don Héctor Valdés · Maestro Asador Propietario",
     email: "socio@patiodehumo.com",
     phone: "477 888 1234",
-    password: "socio123",
+    password: hashPassword("socio123"),
   });
 
   console.log(`✓ Restaurante "${store.name}" creado con éxito con ${MENU.length} platillos/combos y ${EXTRAS.length} extras!`);

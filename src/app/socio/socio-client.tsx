@@ -13,18 +13,6 @@ import {
 import { formatMXN } from "@/lib/utils";
 import type { DbOrder, Product, ProductExtra, Restaurant } from "@/db/schema";
 
-type AccountLite = {
-  id: number;
-  username: string;
-  partnerName: string;
-  email: string;
-  restaurantId: number;
-  storeName: string;
-  storeSlug: string;
-  storeImage: string;
-  categorySlug: string;
-};
-
 type PartnerSession = {
   id: number;
   username: string;
@@ -183,7 +171,6 @@ const RUBROS: Record<string, Rubro> = {
 
 const DEFAULT_RUBRO = RUBROS.restaurantes;
 const rubroOf = (slug?: string | null) => (slug && RUBROS[slug]) || DEFAULT_RUBRO;
-const RUBRO_ORDER = ["restaurantes", "panaderias", "mercado", "turbo", "farmacia", "bebidas", "saludable", "postres", "mascotas"];
 
 function ChipIcon({ kind }: { kind: "18" | "rx" | "frio" }) {
   if (kind === "18") return <IdCard className="h-3.5 w-3.5" />;
@@ -512,7 +499,7 @@ const QUICK_EXTRA_SUGGESTIONS = [
   { name: "Topping de chocolate", price: 14 },
 ];
 
-export default function SocioClient({ initialAccounts }: { initialAccounts: AccountLite[] }) {
+export default function SocioClient() {
   const [partner, setPartner] = useState<PartnerSession | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
 
@@ -542,21 +529,19 @@ export default function SocioClient({ initialAccounts }: { initialAccounts: Acco
     setTimeout(() => setToastMsg(null), 3500);
   };
 
-  // Cargar sesión guardada al iniciar
+  // Restaurar sesión del socio desde el servidor (cookie httpOnly, no localStorage)
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem("rayte-partner-session");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed?.username && parsed?.store?.slug) {
-          setPartner(parsed);
-        }
+    (async () => {
+      try {
+        const res = await fetch("/api/partner/auth", { cache: "no-store" });
+        const data = await res.json();
+        if (res.ok && data.partner) setPartner(data.partner);
+      } catch {
+        // sin sesión
+      } finally {
+        setAuthChecked(true);
       }
-    } catch {
-      // ignore
-    } finally {
-      setAuthChecked(true);
-    }
+    })();
   }, []);
 
   const handleLogin = async (idToUse?: string, passToUse?: string) => {
@@ -582,7 +567,6 @@ export default function SocioClient({ initialAccounts }: { initialAccounts: Acco
         return;
       }
       setPartner(resData.partner);
-      localStorage.setItem("rayte-partner-session", JSON.stringify(resData.partner));
       showToast(`¡Bienvenido, ${resData.partner.partnerName}!`);
     } catch {
       setAuthError("Error de conexión. Intenta de nuevo.");
@@ -595,7 +579,11 @@ export default function SocioClient({ initialAccounts }: { initialAccounts: Acco
     setPartner(null);
     setData(null);
     setOrders([]);
-    localStorage.removeItem("rayte-partner-session");
+    fetch("/api/partner/auth", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "logout" }),
+    }).catch(() => {});
     showToast("Sesión cerrada correctamente");
   };
 
@@ -651,7 +639,6 @@ export default function SocioClient({ initialAccounts }: { initialAccounts: Acco
     setData({ ...data, store: { ...data.store, isOpen: next } });
     if (partner) {
       setPartner({ ...partner, store: { ...partner.store, isOpen: next } });
-      localStorage.setItem("rayte-partner-session", JSON.stringify({ ...partner, store: { ...partner.store, isOpen: next } }));
     }
     await fetch("/api/partner", {
       method: "PATCH",
@@ -972,54 +959,18 @@ export default function SocioClient({ initialAccounts }: { initialAccounts: Acco
             </form>
           </div>
 
-          {/* Selector de Acceso Rápido Demo por Rubro */}
+          {/* Nota de seguridad */}
           <div className="overflow-hidden rounded-[26px] bg-white p-5 shadow-sm border border-black/5">
             <p className="text-[12.5px] font-black uppercase tracking-wider text-ink-soft flex items-center gap-1.5">
-              <Sparkles className="h-4 w-4 text-[#ea580c]" /> Acceso Rápido por Negocio (Demo)
+              <ShieldCheck className="h-4 w-4 text-[#16a34a]" /> Acceso protegido
             </p>
             <p className="mt-0.5 text-[11.5px] font-semibold text-ink-soft">
-              Haz clic en cualquiera de los {initialAccounts.length} negocios para ingresar como su dueño:
+              Cada socio entra con su usuario y contraseña y <b>solo</b> puede ver y gestionar su propio negocio.
             </p>
-
-            <div className="mt-3.5 space-y-4">
-              {RUBRO_ORDER.map((rKey) => {
-                const rAccounts = initialAccounts.filter((a) => a.categorySlug === rKey);
-                if (rAccounts.length === 0) return null;
-                const rConf = rubroOf(rKey);
-
-                return (
-                  <div key={rKey} className="space-y-1.5">
-                    <p className="text-[11px] font-black uppercase tracking-wider" style={{ color: rConf.accent }}>
-                      {rConf.emoji} {rConf.label}
-                    </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {rAccounts.map((acc) => (
-                        <button
-                          key={acc.id}
-                          type="button"
-                          onClick={() => {
-                            setUserInput(acc.username);
-                            setPassInput("socio123");
-                            handleLogin(acc.username, "socio123");
-                          }}
-                          className="flex items-center gap-2.5 rounded-2xl border border-black/8 bg-mist/60 p-2.5 text-left transition hover:border-black/20 hover:bg-white active:scale-98 cursor-pointer"
-                        >
-                          <span className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-white shadow-2xs">
-                            <Image src={acc.storeImage} alt={acc.storeName} fill className="object-cover" sizes="40px" />
-                          </span>
-                          <div className="min-w-0 flex-1">
-                            <p className="truncate text-[12.5px] font-black text-ink">{acc.storeName}</p>
-                            <p className="truncate text-[10.5px] font-bold text-ink-soft">
-                              👤 {acc.username}
-                            </p>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+            <p className="mt-2 rounded-xl bg-mist/70 p-2.5 text-[11px] font-bold text-ink-soft">
+              Demo: usuario <span className="font-black text-ink">labrasa</span> · contraseña{" "}
+              <span className="font-black text-ink">socio123</span>
+            </p>
           </div>
         </main>
       </div>

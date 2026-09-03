@@ -164,9 +164,17 @@ export const partnerAccounts = pgTable("partner_accounts", {
   username: varchar("username", { length: 60 }).notNull().unique(),
   partnerName: varchar("partner_name", { length: 90 }).notNull(),
   email: varchar("email", { length: 120 }).notNull().unique(),
-  password: varchar("password", { length: 120 }).notNull(),
+  password: text("password").notNull(),
   phone: varchar("phone", { length: 30 }).notNull().default(""),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/* ── Sesiones de socios (login por negocio, httpOnly cookie) ── */
+export const partnerSessions = pgTable("partner_sessions", {
+  token: varchar("token", { length: 80 }).primaryKey(),
+  partnerId: integer("partner_id").notNull().references(() => partnerAccounts.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
 });
 
 /* ── Usuarios y sesiones (login/registro real) ── */
@@ -234,6 +242,7 @@ export type ServiceOption = typeof serviceOptions.$inferSelect;
 export type Appointment = typeof appointments.$inferSelect;
 export type Driver = typeof drivers.$inferSelect;
 export type PartnerAccount = typeof partnerAccounts.$inferSelect;
+export type PartnerSessionRow = typeof partnerSessions.$inferSelect;
 export type User = typeof users.$inferSelect;
 export type Session = typeof sessions.$inferSelect;
 export type DbOrder = typeof orders.$inferSelect;

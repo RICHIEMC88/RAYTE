@@ -3,6 +3,7 @@
 import "dotenv/config";
 import { db, pool } from "./index";
 import { restaurants, partnerAccounts } from "./schema";
+import { hashPassword } from "../lib/password";
 
 type PartnerSeed = {
   slug: string;
@@ -211,7 +212,7 @@ async function main() {
       partnerName,
       email,
       phone,
-      password,
+      password: hashPassword(password),
     });
     createdCount++;
   }

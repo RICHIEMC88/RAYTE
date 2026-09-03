@@ -3,6 +3,7 @@ import { and, desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { drivers, orders, restaurants, type DbOrder, type OrderItem } from "@/db/schema";
 import { sessionUser } from "@/lib/auth";
+import { currentPartner, partnerOwns } from "@/lib/partner-auth";
 
 /* ============================================================
    Pedidos REALES en PostgreSQL.
@@ -93,8 +94,16 @@ export async function GET(req: Request) {
   }
 
   if (sp.get("store")) {
+    // Roles: solo el dueño de la tienda puede ver sus pedidos (panel socio)
+    const partner = await currentPartner();
+    if (!partner) return NextResponse.json({ error: "Sesión de socio requerida" }, { status: 401 });
+
     const [store] = await db.select().from(restaurants).where(eq(restaurants.slug, sp.get("store")!));
     if (!store) return NextResponse.json({ error: "Tienda no encontrada" }, { status: 404 });
+    if (!partnerOwns(partner, store.id)) {
+      return NextResponse.json({ error: "No tienes permiso sobre esta tienda" }, { status: 403 });
+    }
+
     let list = await db.select().from(orders).where(eq(orders.restaurantId, store.id)).orderBy(desc(orders.placedAt)).limit(40);
     list = await Promise.all(list.map(autoAdvance));
     return NextResponse.json({ orders: list });
@@ -202,6 +211,13 @@ export async function PATCH(req: Request) {
     }
 
     if (b.action === "status" || b.status) {
+      // Roles: la tienda que avanza este pedido debe ser su dueño
+      const partner = await currentPartner();
+      if (!partner) return NextResponse.json({ error: "Sesión de socio requerida" }, { status: 401 });
+      if (!partnerOwns(partner, o.restaurantId)) {
+        return NextResponse.json({ error: "No tienes permiso para gestionar este pedido" }, { status: 403 });
+      }
+
       const next = String(b.status) as Status;
       if (!STATUSES.includes(next)) return NextResponse.json({ error: "estado inválido" }, { status: 400 });
       if (STATUSES.indexOf(next) <= STATUSES.indexOf(o.status as Status)) {

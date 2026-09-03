@@ -2,8 +2,12 @@ import { NextResponse } from "next/server";
 import { and, asc, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { restaurants, products, productExtras } from "@/db/schema";
+import { currentPartner, partnerOwns, type PartnerPublic } from "@/lib/partner-auth";
 
-/* Panel de socios (demo):
+/* Panel de socios (con roles / permisos):
+   Cada socio autenticado SÓLO puede leer y modificar SU negocio.
+   Ninguna acción depende de un `restaurantId` o `slug` que se
+   envíe desde el cliente: siempre se valida contra la sesión.
    GET  ?slug=...  → tienda + menú + extras
    POST { action: "add_product", ... }
    POST { action: "update_product", ... }
@@ -17,11 +21,19 @@ import { restaurants, products, productExtras } from "@/db/schema";
 */
 
 export async function GET(req: Request) {
+  const partner = await currentPartner();
+  if (!partner) return NextResponse.json({ error: "Sesión de socio requerida" }, { status: 401 });
+
   const slug = new URL(req.url).searchParams.get("slug");
   if (!slug) return NextResponse.json({ error: "slug requerido" }, { status: 400 });
   const [store] = await db.select().from(restaurants).where(eq(restaurants.slug, slug));
   if (!store) return NextResponse.json({ error: "Tienda no encontrada" }, { status: 404 });
-  
+
+  // Roles: solo el dueño de esta tienda puede ver su panel
+  if (!partnerOwns(partner, store.id)) {
+    return NextResponse.json({ error: "No tienes permiso sobre esta tienda" }, { status: 403 });
+  }
+
   const menu = await db
     .select()
     .from(products)
@@ -39,12 +51,22 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
+    const partner = await currentPartner();
+    if (!partner) {
+      return NextResponse.json({ error: "Sesión de socio requerida" }, { status: 401 });
+    }
     const body = await req.json();
+
+    /* Valida que el `restaurantId` de la acción pertenezca al socio. */
+    const owned = (rid: unknown) => partnerOwns(partner, String(rid ?? ""));
 
     /* ── AGREGAR PLATILLO / PRODUCTO AL MENÚ ── */
     if (body.action === "add_product") {
       const { restaurantId, name, price, description = "", section = "General", image = null, popular = false, extras = [] } = body;
 
+      if (!owned(restaurantId)) {
+        return NextResponse.json({ error: "No tienes permiso para editar este negocio" }, { status: 403 });
+      }
       if (!restaurantId || !name || price === undefined) {
         return NextResponse.json({ error: "Datos incompletos para agregar platillo" }, { status: 400 });
       }
@@ -106,6 +128,16 @@ export async function POST(req: Request) {
       const { id, restaurantId, name, price, description, section, image, popular, available, extras } = body;
       if (!id) return NextResponse.json({ error: "id de producto requerido" }, { status: 400 });
 
+      // Roles: el platillo debe pertenecer al negocio del socio
+      const [target] = await db.select().from(products).where(eq(products.id, Number(id)));
+      if (!target) return NextResponse.json({ error: "Platillo no encontrado" }, { status: 404 });
+      if (!owned(target.restaurantId)) {
+        return NextResponse.json({ error: "No tienes permiso para editar este platillo" }, { status: 403 });
+      }
+      if (restaurantId !== undefined && !owned(restaurantId)) {
+        return NextResponse.json({ error: "No tienes permiso para cambiar de negocio" }, { status: 403 });
+      }
+
       const patch: Partial<typeof products.$inferInsert> = {};
       if (name !== undefined) patch.name = String(name).trim();
       if (price !== undefined) patch.price = Number(price);
@@ -155,6 +187,12 @@ export async function POST(req: Request) {
       const { id } = body;
       if (!id) return NextResponse.json({ error: "id de producto requerido" }, { status: 400 });
 
+      const [target] = await db.select().from(products).where(eq(products.id, Number(id)));
+      if (!target) return NextResponse.json({ error: "Platillo no encontrado" }, { status: 404 });
+      if (!owned(target.restaurantId)) {
+        return NextResponse.json({ error: "No tienes permiso para eliminar este platillo" }, { status: 403 });
+      }
+
       await db.delete(products).where(eq(products.id, Number(id)));
       return NextResponse.json({ ok: true });
     }
@@ -162,6 +200,9 @@ export async function POST(req: Request) {
     /* ── AGREGAR EXTRA / COMPLEMENTO ── */
     if (body.action === "add_extra") {
       const { restaurantId, productId = null, name, price } = body;
+      if (!owned(restaurantId)) {
+        return NextResponse.json({ error: "No tienes permiso para editar este negocio" }, { status: 403 });
+      }
       if (!restaurantId || !name || price === undefined) {
         return NextResponse.json({ error: "Datos incompletos para agregar extra" }, { status: 400 });
       }
@@ -191,6 +232,12 @@ export async function POST(req: Request) {
       const { id, name, price, available, productId } = body;
       if (!id) return NextResponse.json({ error: "id de extra requerido" }, { status: 400 });
 
+      const [target] = await db.select().from(productExtras).where(eq(productExtras.id, Number(id)));
+      if (!target) return NextResponse.json({ error: "Extra no encontrado" }, { status: 404 });
+      if (!owned(target.restaurantId)) {
+        return NextResponse.json({ error: "No tienes permiso para editar este extra" }, { status: 403 });
+      }
+
       const patch: Partial<typeof productExtras.$inferInsert> = {};
       if (name !== undefined) patch.name = String(name).trim();
       if (price !== undefined) patch.price = Number(price);
@@ -212,6 +259,12 @@ export async function POST(req: Request) {
       const { id } = body;
       if (!id) return NextResponse.json({ error: "id de extra requerido" }, { status: 400 });
 
+      const [target] = await db.select().from(productExtras).where(eq(productExtras.id, Number(id)));
+      if (!target) return NextResponse.json({ error: "Extra no encontrado" }, { status: 404 });
+      if (!owned(target.restaurantId)) {
+        return NextResponse.json({ error: "No tienes permiso para eliminar este extra" }, { status: 403 });
+      }
+
       await db.delete(productExtras).where(eq(productExtras.id, Number(id)));
       return NextResponse.json({ ok: true });
     }
@@ -225,35 +278,54 @@ export async function POST(req: Request) {
 
 export async function PATCH(req: Request) {
   try {
+    const partner = await currentPartner();
+    if (!partner) {
+      return NextResponse.json({ error: "Sesión de socio requerida" }, { status: 401 });
+    }
     const body = await req.json();
 
+    /* ── Abrir/cerrar tienda ── */
     if (body.action === "store") {
+      const [store] = await db.select().from(restaurants).where(eq(restaurants.slug, String(body.slug)));
+      if (!store) return NextResponse.json({ error: "Tienda no encontrada" }, { status: 404 });
+      if (!partnerOwns(partner, store.id)) {
+        return NextResponse.json({ error: "No tienes permiso sobre esta tienda" }, { status: 403 });
+      }
       const [row] = await db
         .update(restaurants)
         .set({ isOpen: !!body.isOpen })
-        .where(eq(restaurants.slug, String(body.slug)))
+        .where(eq(restaurants.id, store.id))
         .returning();
-      if (!row) return NextResponse.json({ error: "Tienda no encontrada" }, { status: 404 });
       return NextResponse.json({ ok: true, store: row });
     }
 
+    /* ── Disponibilidad de platillo ── */
     if (body.action === "product") {
+      const [target] = await db.select().from(products).where(eq(products.id, Number(body.productId)));
+      if (!target) return NextResponse.json({ error: "Producto no encontrado" }, { status: 404 });
+      if (!partnerOwns(partner, target.restaurantId)) {
+        return NextResponse.json({ error: "No tienes permiso sobre este platillo" }, { status: 403 });
+      }
       const [row] = await db
         .update(products)
         .set({ available: !!body.available })
         .where(eq(products.id, Number(body.productId)))
         .returning();
-      if (!row) return NextResponse.json({ error: "Producto no encontrado" }, { status: 404 });
       return NextResponse.json({ ok: true, product: row });
     }
 
+    /* ── Disponibilidad de extra ── */
     if (body.action === "extra") {
+      const [target] = await db.select().from(productExtras).where(eq(productExtras.id, Number(body.extraId)));
+      if (!target) return NextResponse.json({ error: "Extra no encontrado" }, { status: 404 });
+      if (!partnerOwns(partner, target.restaurantId)) {
+        return NextResponse.json({ error: "No tienes permiso sobre este extra" }, { status: 403 });
+      }
       const [row] = await db
         .update(productExtras)
         .set({ available: !!body.available })
         .where(eq(productExtras.id, Number(body.extraId)))
         .returning();
-      if (!row) return NextResponse.json({ error: "Extra no encontrado" }, { status: 404 });
       return NextResponse.json({ ok: true, extra: row });
     }
 
