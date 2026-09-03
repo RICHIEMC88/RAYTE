@@ -23,20 +23,126 @@ const SIZES_BY_STORE: Record<string, { name: string; delta: number }[]> = {
 };
 const NO_SIZE = { name: "", delta: 0 };
 
-/* Fallback de extras según giro si la tienda aún no tiene cargados en BD */
-const DEFAULT_FALLBACK_EXTRAS: Record<string, { name: string; delta: number }[]> = {
-  restaurantes: [
-    { name: "Aguacate hass fresco", delta: 20 },
+type ExtraOption = { name: string; delta: number };
+
+/* Fallbacks inteligentes para no mezclar giros de restaurantes */
+const FALLBACK_EXTRAS_BY_STORE: Record<string, ExtraOption[]> = {
+  "patio-de-humo-asadero-time": [
+    { name: "Aguacate hass fresco en láminas", delta: 22 },
     { name: "Cebollitas cambray asadas extra", delta: 18 },
     { name: "Chicharrón de queso manchego", delta: 28 },
-    { name: "Costra de queso para taco", delta: 20 },
-    { name: "Frijoles charros con tuétano extra", delta: 25 },
+    { name: "Costra de queso asado para taco", delta: 20 },
+    { name: "Frijoles charros individuales extra", delta: 25 },
     { name: "Guacamole artesanal con totopos", delta: 28 },
-    { name: "Nopales asados con orégano", delta: 16 },
+    { name: "Nopal asado con orégano x2", delta: 16 },
+    { name: "Orden de tortillas recién hechas (10 pzs)", delta: 15 },
     { name: "Papas a la francesa sazonadas", delta: 28 },
-    { name: "Queso gouda gratinado", delta: 22 },
-    { name: "Salsa macha artesanal", delta: 12 },
+    { name: "Queso gouda gratinado extra", delta: 22 },
+    { name: "Salsa macha artesanal de chile de árbol", delta: 12 },
     { name: "Tuétano asado individual a la leña", delta: 35 },
+  ],
+  "la-brasa-smash": [
+    { name: "Aderezo secreto de la casa", delta: 12 },
+    { name: "Aguacate hass fresco", delta: 20 },
+    { name: "Carne smash extra (100g)", delta: 38 },
+    { name: "Cebolla caramelizada", delta: 14 },
+    { name: "Jalapeños toreados", delta: 10 },
+    { name: "Papas a la francesa sazonadas", delta: 28 },
+    { name: "Queso gouda gratinado", delta: 18 },
+    { name: "Tocino ahumado crujiente", delta: 22 },
+  ],
+  "pizza-nonna": [
+    { name: "Champiñones frescos salteados", delta: 20 },
+    { name: "Chimichurri de la Nonna", delta: 12 },
+    { name: "Hojuelas de chile peperoncino", delta: 8 },
+    { name: "Orilla rellena de queso gouda", delta: 35 },
+    { name: "Pepperoni crujiente extra", delta: 25 },
+    { name: "Queso mozzarella extra", delta: 25 },
+    { name: "Salsa de ajo y parmesano", delta: 15 },
+  ],
+  "sushi-neko": [
+    { name: "Aguacate fresco extra", delta: 18 },
+    { name: "Cebollín fresco y ajonjolí tostado", delta: 8 },
+    { name: "Porción de aderezo chipotle dulce", delta: 12 },
+    { name: "Queso crema Philadelphia extra", delta: 16 },
+    { name: "Salsa anguila dulce artesanal", delta: 12 },
+    { name: "Salsa tampico de cangrejo", delta: 24 },
+    { name: "Soya, jengibre y wasabi extra", delta: 10 },
+  ],
+  "pollo-crack": [
+    { name: "Aderezo Ranch cremoso casero", delta: 14 },
+    { name: "Apio y zanahoria fresca con dip", delta: 12 },
+    { name: "Aros de cebolla crujientes x4", delta: 28 },
+    { name: "Papas gajo crujientes con paprika", delta: 26 },
+    { name: "Queso cheddar líquido caliente", delta: 16 },
+    { name: "Salsa BBQ Habanero extra", delta: 12 },
+  ],
+  "tacos-el-farol": [
+    { name: "Cebollitas cambray asadas", delta: 15 },
+    { name: "Chicharrón de queso crujiente", delta: 28 },
+    { name: "Costra de queso asado", delta: 22 },
+    { name: "Guacamole artesanal con totopos", delta: 25 },
+    { name: "Nopal asado con orégano", delta: 12 },
+    { name: "Papas al horno con mantequilla", delta: 20 },
+    { name: "Salsa macha de chile de árbol", delta: 10 },
+  ],
+  "panaderia-la-espiga": [
+    { name: "Cajeta quemada de Celaya", delta: 15 },
+    { name: "Mantequilla de rancho con sal", delta: 10 },
+    { name: "Mermelada de fresa artesanal", delta: 12 },
+    { name: "Nutella para untar (porción)", delta: 16 },
+    { name: "Topping de canela y azúcar mascabado", delta: 6 },
+    { name: "Vaso de leche fría 250ml", delta: 14 },
+  ],
+};
+
+const FALLBACK_EXTRAS_BY_PROFILE: Record<string, ExtraOption[]> = {
+  mariscos: [
+    { name: "Aderezo tártara de la casa", delta: 14 },
+    { name: "Aguacate fresco extra", delta: 22 },
+    { name: "Galletas saladas extra", delta: 8 },
+    { name: "Limón extra", delta: 8 },
+    { name: "Pepino y cebolla morada", delta: 12 },
+    { name: "Salsa negra y picante", delta: 10 },
+  ],
+  sushi: [
+    { name: "Aguacate fresco extra", delta: 18 },
+    { name: "Cebollín fresco y ajonjolí tostado", delta: 8 },
+    { name: "Queso crema Philadelphia extra", delta: 16 },
+    { name: "Salsa anguila dulce artesanal", delta: 12 },
+    { name: "Salsa tampico de cangrejo", delta: 24 },
+    { name: "Soya, jengibre y wasabi extra", delta: 10 },
+  ],
+  pizza: [
+    { name: "Champiñones frescos salteados", delta: 20 },
+    { name: "Hojuelas de chile peperoncino", delta: 8 },
+    { name: "Orilla rellena de queso", delta: 35 },
+    { name: "Pepperoni extra", delta: 25 },
+    { name: "Queso mozzarella extra", delta: 25 },
+    { name: "Salsa de ajo y parmesano", delta: 15 },
+  ],
+  hamburguesas: [
+    { name: "Aguacate hass fresco", delta: 20 },
+    { name: "Carne extra", delta: 38 },
+    { name: "Jalapeños toreados", delta: 10 },
+    { name: "Papas a la francesa", delta: 28 },
+    { name: "Queso extra", delta: 18 },
+    { name: "Tocino crujiente", delta: 22 },
+  ],
+  tacos: [
+    { name: "Cebollitas cambray asadas", delta: 15 },
+    { name: "Costra de queso", delta: 22 },
+    { name: "Guacamole artesanal", delta: 25 },
+    { name: "Nopal asado", delta: 12 },
+    { name: "Orden de tortillas extra", delta: 12 },
+    { name: "Salsa macha", delta: 10 },
+  ],
+  pollo: [
+    { name: "Aderezo Ranch de la casa", delta: 14 },
+    { name: "Aros de cebolla crujientes", delta: 28 },
+    { name: "Papas gajo sazonadas", delta: 26 },
+    { name: "Queso cheddar líquido", delta: 16 },
+    { name: "Salsa BBQ extra", delta: 12 },
   ],
   panaderias: [
     { name: "Cajeta quemada de Celaya", delta: 15 },
@@ -46,6 +152,7 @@ const DEFAULT_FALLBACK_EXTRAS: Record<string, { name: string; delta: number }[]>
   ],
   saludable: [
     { name: "Aguacate hass en cubos", delta: 18 },
+    { name: "Aderezo de cilantro y limón", delta: 10 },
     { name: "Huevo cocido orgánico", delta: 14 },
     { name: "Pollo a la plancha extra", delta: 32 },
     { name: "Semillas de chía y cáñamo", delta: 12 },
@@ -55,6 +162,20 @@ const DEFAULT_FALLBACK_EXTRAS: Record<string, { name: string; delta: number }[]>
     { name: "Crema batida chantilly", delta: 10 },
     { name: "Fresas frescas picadas", delta: 16 },
     { name: "Topping de chocolate belga", delta: 14 },
+  ],
+  cafeterias: [
+    { name: "Leche de almendras u avena", delta: 12 },
+    { name: "Miel de abeja", delta: 10 },
+    { name: "Shot de espresso extra", delta: 15 },
+    { name: "Syrup de vainilla", delta: 10 },
+  ],
+  restaurantes: [
+    { name: "Aderezo de la casa", delta: 12 },
+    { name: "Aguacate fresco extra", delta: 20 },
+    { name: "Limón extra", delta: 8 },
+    { name: "Papas a la francesa", delta: 28 },
+    { name: "Queso extra", delta: 18 },
+    { name: "Salsa extra", delta: 10 },
   ],
 };
 
@@ -147,6 +268,56 @@ function parseOptionValue(source: string | undefined, prefix: string) {
 
 function stripPriceSuffix(label: string) {
   return label.replace(/\s*\(\+[^)]*\)$/, "").trim();
+}
+
+function isGrillStore(store: Restaurant) {
+  const normalizedTags = (store.tags ?? []).map((tag) => tag.toLowerCase());
+  return (
+    store.categorySlug === "restaurantes" &&
+    (
+      store.slug === "patio-de-humo-asadero-time" ||
+      normalizedTags.some((tag) => ["cortes", "parrilladas", "asador", "carneasada"].includes(tag))
+    )
+  );
+}
+
+function detectExtraProfile(store: Restaurant, product: Product) {
+  if (FALLBACK_EXTRAS_BY_STORE[store.slug]) return store.slug;
+
+  const text = `${store.name} ${store.slug} ${store.description} ${product.name} ${product.description} ${product.section} ${(store.tags ?? []).join(" ")}`.toLowerCase();
+
+  if (["mariscos", "marisqueria", "seafood", "ceviche", "camaron", "camarón", "pescado", "tostada de atun", "tostada de atún", "coctel", "cocktel", "pulpo", "ostion", "ostión"].some((word) => text.includes(word))) {
+    return "mariscos";
+  }
+  if (["sushi", "roll", "rollos", "japonesa", "ramen", "temaki", "nigiri"].some((word) => text.includes(word))) {
+    return "sushi";
+  }
+  if (["pizza", "italiana", "pepperoni", "pasta", "lasagna", "lasaña"].some((word) => text.includes(word))) {
+    return "pizza";
+  }
+  if (["burger", "hamburguesa", "smash"].some((word) => text.includes(word))) {
+    return "hamburguesas";
+  }
+  if (["taco", "taquer", "birria", "quesataco", "pastor"].some((word) => text.includes(word))) {
+    return "tacos";
+  }
+  if (["pollo", "alitas", "boneless", "broaster", "tenders"].some((word) => text.includes(word))) {
+    return "pollo";
+  }
+  if (store.categorySlug === "panaderias" || ["panaderia", "panadería", "concha", "croissant", "baguette", "cuerno"].some((word) => text.includes(word))) {
+    return "panaderias";
+  }
+  if (store.categorySlug === "postres" || ["postre", "helado", "crepa", "waffle", "pastel", "dona"].some((word) => text.includes(word))) {
+    return "postres";
+  }
+  if (store.categorySlug === "saludable" || ["saludable", "ensalada", "bowl", "fit", "proteina", "proteína"].some((word) => text.includes(word))) {
+    return "saludable";
+  }
+  if (["cafe", "café", "latte", "espresso", "frappe", "frappé"].some((word) => text.includes(word))) {
+    return "cafeterias";
+  }
+
+  return store.categorySlug in FALLBACK_EXTRAS_BY_PROFILE ? store.categorySlug : "restaurantes";
 }
 
 export default function ItemModal({
@@ -340,7 +511,7 @@ export default function ItemModal({
 
   // Calcular lista de extras aplicables a este platillo (ordenados alfabéticamente A-Z)
   const availableExtras = useMemo(() => {
-    let list: { name: string; delta: number }[] = [];
+    let list: ExtraOption[] = [];
     if (!product) return [];
     if (storeExtras && storeExtras.length > 0) {
       const matched = storeExtras.filter(
@@ -351,11 +522,11 @@ export default function ItemModal({
       }
     }
     if (list.length === 0) {
-      list = DEFAULT_FALLBACK_EXTRAS[store.categorySlug] ?? DEFAULT_FALLBACK_EXTRAS.restaurantes;
+      const profile = detectExtraProfile(store, product);
+      list = FALLBACK_EXTRAS_BY_STORE[profile] ?? FALLBACK_EXTRAS_BY_PROFILE[profile] ?? FALLBACK_EXTRAS_BY_PROFILE.restaurantes;
     }
-    // Ordenar alfabéticamente A-Z
     return [...list].sort((a, b) => a.name.localeCompare(b.name, "es-MX"));
-  }, [product, storeExtras, store.categorySlug]);
+  }, [product, storeExtras, store]);
 
   const initialCustomization = useMemo(() => {
     if (!editingItem) return null;
