@@ -25,49 +25,109 @@
   --ink-soft: #6b7280;
   --mist: #f3f4f6;
   --amber-pop: #fbbf24;
-  --app-text-scale: 1.00;
 }
 
 body {
   font-family: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
 }
 
-/* Escala tipográfica base, calibrada para verse más cerca de Uber Eats */
-.text-xs { font-size: calc(0.75rem * var(--app-text-scale)) !important; }
-.text-sm { font-size: calc(0.875rem * var(--app-text-scale)) !important; }
-.text-base { font-size: calc(1rem * var(--app-text-scale)) !important; }
-.text-lg { font-size: calc(1.125rem * var(--app-text-scale)) !important; }
-.text-xl { font-size: calc(1.25rem * var(--app-text-scale)) !important; }
-.text-2xl { font-size: calc(1.5rem * var(--app-text-scale)) !important; }
-.text-3xl { font-size: calc(1.875rem * var(--app-text-scale)) !important; }
-.text-4xl { font-size: calc(2.25rem * var(--app-text-scale)) !important; }
-.text-\[9\.5px\] { font-size: calc(9.5px * var(--app-text-scale)) !important; }
-.text-\[10px\] { font-size: calc(10px * var(--app-text-scale)) !important; }
-.text-\[10\.5px\] { font-size: calc(10.5px * var(--app-text-scale)) !important; }
-.text-\[11px\] { font-size: calc(11px * var(--app-text-scale)) !important; }
-.text-\[11\.5px\] { font-size: calc(11.5px * var(--app-text-scale)) !important; }
-.text-\[12px\] { font-size: calc(12px * var(--app-text-scale)) !important; }
-.text-\[12\.5px\] { font-size: calc(12.5px * var(--app-text-scale)) !important; }
-.text-\[13px\] { font-size: calc(13px * var(--app-text-scale)) !important; }
-.text-\[13\.5px\] { font-size: calc(13.5px * var(--app-text-scale)) !important; }
-.text-\[14\.5px\] { font-size: calc(14.5px * var(--app-text-scale)) !important; }
-.text-\[15px\] { font-size: calc(15px * var(--app-text-scale)) !important; }
-.text-\[15\.5px\] { font-size: calc(15.5px * var(--app-text-scale)) !important; }
-.text-\[16px\] { font-size: calc(16px * var(--app-text-scale)) !important; }
-.text-\[16\.5px\] { font-size: calc(16.5px * var(--app-text-scale)) !important; }
-.text-\[17px\] { font-size: calc(17px * var(--app-text-scale)) !important; }
-.text-\[18px\] { font-size: calc(18px * var(--app-text-scale)) !important; }
-.text-\[19px\] { font-size: calc(19px * var(--app-text-scale)) !important; }
-.text-\[20px\] { font-size: calc(20px * var(--app-text-scale)) !important; }
-.text-\[21px\] { font-size: calc(21px * var(--app-text-scale)) !important; }
-.text-\[22px\] { font-size: calc(22px * var(--app-text-scale)) !important; }
-.text-\[23px\] { font-size: calc(23px * var(--app-text-scale)) !important; }
-.text-\[24px\] { font-size: calc(24px * var(--app-text-scale)) !important; }
-.text-\[26px\] { font-size: calc(26px * var(--app-text-scale)) !important; }
-.text-\[27px\] { font-size: calc(27px * var(--app-text-scale)) !important; }
-.text-\[28px\] { font-size: calc(28px * var(--app-text-scale)) !important; }
-.text-\[30px\] { font-size: calc(30px * var(--app-text-scale)) !important; }
-.text-\[34px\] { font-size: calc(34px * var(--app-text-scale)) !important; }
+/* Escala tipográfica alineada al sistema Base de Uber: 12, 14, 16, 18, 20, 24, 32, 36 */
+.text-xs {
+  font-size: 12px !important;
+  line-height: 20px !important;
+}
+.text-sm {
+  font-size: 14px !important;
+  line-height: 20px !important;
+}
+.text-base {
+  font-size: 16px !important;
+  line-height: 24px !important;
+}
+.text-lg {
+  font-size: 18px !important;
+  line-height: 24px !important;
+}
+.text-xl {
+  font-size: 20px !important;
+  line-height: 28px !important;
+}
+.text-2xl {
+  font-size: 24px !important;
+  line-height: 32px !important;
+}
+.text-3xl {
+  font-size: 32px !important;
+  line-height: 40px !important;
+}
+.text-4xl {
+  font-size: 36px !important;
+  line-height: 44px !important;
+}
+
+.text-\[8\.5px\],
+.text-\[9px\],
+.text-\[9\.5px\],
+.text-\[10px\],
+.text-\[10\.5px\],
+.text-\[11px\] {
+  font-size: 12px !important;
+  line-height: 20px !important;
+}
+
+.text-\[11\.5px\],
+.text-\[12px\],
+.text-\[12\.5px\],
+.text-\[13px\],
+.text-\[13\.5px\],
+.text-\[14px\] {
+  font-size: 14px !important;
+  line-height: 20px !important;
+}
+
+.text-\[14\.5px\],
+.text-\[15px\],
+.text-\[15\.5px\],
+.text-\[16px\] {
+  font-size: 16px !important;
+  line-height: 24px !important;
+}
+
+.text-\[16\.5px\],
+.text-\[17px\],
+.text-\[18px\] {
+  font-size: 18px !important;
+  line-height: 24px !important;
+}
+
+.text-\[19px\],
+.text-\[20px\] {
+  font-size: 20px !important;
+  line-height: 28px !important;
+}
+
+.text-\[21px\],
+.text-\[22px\],
+.text-\[23px\],
+.text-\[24px\] {
+  font-size: 24px !important;
+  line-height: 32px !important;
+}
+
+.text-\[25px\],
+.text-\[26px\],
+.text-\[27px\],
+.text-\[28px\],
+.text-\[30px\] {
+  font-size: 32px !important;
+  line-height: 40px !important;
+}
+
+.text-\[32px\],
+.text-\[34px\] {
+  font-size: 36px !important;
+  line-height: 44px !important;
+}
 
 .no-scrollbar::-webkit-scrollbar {
   display: none;
