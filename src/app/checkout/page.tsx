@@ -5,15 +5,17 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ArrowLeft, Banknote, CreditCard, Landmark, MapPin, ShoppingBag, Zap, CalendarDays, Clock3, Camera, Check, X } from "lucide-react";
+import { ArrowLeft, Banknote, CreditCard, Landmark, MapPin, ShoppingBag, Zap, CalendarDays, Clock3, Camera, Check, X, Receipt } from "lucide-react";
 import { useCart, cartSubtotal, cartCount, type CartItem, type CartRestaurant } from "@/store/cart";
 import { useOrders, type Order } from "@/store/orders";
 import { formatMXN, serviceFeeFor } from "@/lib/utils";
+import PaymentModal, { type PaymentResult, type PaymentMethod } from "@/components/payment-modal";
 
 const PAYMENTS = [
-  { id: "Efectivo", icon: Banknote, hint: "Pagas al recibir" },
-  { id: "Tarjeta •••• 4821", icon: CreditCard, hint: "Visa terminada en 4821" },
-  { id: "PSE", icon: Landmark, hint: "Débito desde tu banco" },
+  { id: "Efectivo", icon: Banknote, hint: "Pagas en efectivo al recibir", kind: "cash" as const },
+  { id: "Mercado Pago", icon: CreditCard, hint: "Tarjeta, OXXO o transferencia", kind: "mp" as const, mpMethod: "card" as PaymentMethod },
+  { id: "OXXO", icon: Receipt, hint: "Paga en efectivo en tiendas OXXO", kind: "mp" as const, mpMethod: "oxxo" as PaymentMethod },
+  { id: "SPEI", icon: Landmark, hint: "Transferencia desde tu banco", kind: "mp" as const, mpMethod: "transfer" as PaymentMethod },
 ];
 const TIPS = [0, 10, 15, 25];
 const CHECKOUT_DRAFT_KEY = "rayte-checkout-draft";
@@ -63,6 +65,10 @@ export default function CheckoutPage() {
   const [deliveryPhoto, setDeliveryPhoto] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const restoredFormRef = useRef(false);
+
+  // Pago con Mercado Pago (simulado)
+  const [showPayment, setShowPayment] = useState(false);
+  const [pendingPayment, setPendingPayment] = useState<PaymentMethod>("card");
 
   useEffect(() => {
     if (!mounted || restoredFormRef.current) return;
@@ -152,27 +158,8 @@ export default function CheckoutPage() {
     );
   }
 
-  const confirm = async () => {
-    setError("");
-    if (!name.trim() || !tel.trim() || !addr.trim()) {
-      setError("Completa tu nombre, teléfono y dirección.");
-      return;
-    }
-    let scheduledFor: string | undefined;
-    if (when === "schedule") {
-      if (!slot || !days) {
-        setError("Elige el día y la hora de entrega programada.");
-        return;
-      }
-      const d = new Date(days[dayIdx].date);
-      const [h, m] = slot.split(":").map(Number);
-      d.setHours(h, m, 0, 0);
-      if (d.getTime() <= Date.now()) {
-        setError("La hora programada ya pasó. Elige otra.");
-        return;
-      }
-      scheduledFor = d.toISOString();
-    }
+  /* Crea el pedido (PostgreSQL) tras validar / pagar. */
+  const createOrder = async (paymentLabel: string, scheduledFor?: string) => {
     if (placing) return;
     setPlacing(true);
     let code = `RY-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -192,7 +179,7 @@ export default function CheckoutPage() {
           customerName: name.trim(),
           phone: tel.trim(),
           address: addr.trim(),
-          payment,
+          payment: paymentLabel,
           scheduledFor,
         }),
       });
@@ -215,7 +202,7 @@ export default function CheckoutPage() {
       customerName: name.trim(),
       phone: tel.trim(),
       address: addr.trim(),
-      payment,
+      payment: paymentLabel,
       placedAt: Date.now(),
       etaMin: activeRestaurant.timeMin ?? 25,
       etaMax: activeRestaurant.timeMax ?? 40,
@@ -226,6 +213,58 @@ export default function CheckoutPage() {
     clear();
     sessionStorage.removeItem(CHECKOUT_DRAFT_KEY);
     router.push(`/pedido/${code}`);
+  };
+
+  /* Se ejecuta al confirmar en el checkout. */
+  const confirm = async () => {
+    setError("");
+    if (!name.trim() || !tel.trim() || !addr.trim()) {
+      setError("Completa tu nombre, teléfono y dirección.");
+      return;
+    }
+    let scheduledFor: string | undefined;
+    if (when === "schedule") {
+      if (!slot || !days) {
+        setError("Elige el día y la hora de entrega programada.");
+        return;
+      }
+      const d = new Date(days[dayIdx].date);
+      const [h, m] = slot.split(":").map(Number);
+      d.setHours(h, m, 0, 0);
+      if (d.getTime() <= Date.now()) {
+        setError("La hora programada ya pasó. Elige otra.");
+        return;
+      }
+      scheduledFor = d.toISOString();
+    }
+
+    const selected = PAYMENTS.find((p) => p.id === payment);
+
+    // Pago en línea (Mercado Pago simulado) → abrir el modal primero
+    if (selected?.kind === "mp") {
+      setPendingPayment(selected.mpMethod ?? "card");
+      setShowPayment(true);
+      return;
+    }
+
+    // Efectivo contra entrega
+    await createOrder("Efectivo", scheduledFor);
+  };
+
+  /* Al aprobar/registrar el pago en el modal → crear el pedido. */
+  const onPaymentSuccess = (p: PaymentResult) => {
+    let label = "Mercado Pago";
+    if (p.method === "card" && p.card_mask) label = `Mercado Pago ${p.card_mask}`;
+    if (p.method === "oxxo") label = "Mercado Pago · OXXO";
+    if (p.method === "transfer") label = "Mercado Pago · SPEI";
+    let scheduledFor: string | undefined;
+    if (when === "schedule" && slot && days) {
+      const d = new Date(days[dayIdx].date);
+      const [h, m] = slot.split(":").map(Number);
+      d.setHours(h, m, 0, 0);
+      scheduledFor = d.toISOString();
+    }
+    createOrder(label, scheduledFor);
   };
 
   const schedLabel = () => {
@@ -441,6 +480,16 @@ export default function CheckoutPage() {
           <span>{formatMXN(total)}</span>
         </motion.button>
       </div>
+
+      {/* Modal de pago Mercado Pago (simulado) */}
+      <PaymentModal
+        open={showPayment}
+        amount={total}
+        initialMethod={pendingPayment}
+        customer={{ name: name.trim(), phone: tel.trim() }}
+        onClose={() => { setShowPayment(false); setError(""); }}
+        onSuccess={onPaymentSuccess}
+      />
     </div>
   );
 }
