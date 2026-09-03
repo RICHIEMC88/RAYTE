@@ -386,10 +386,10 @@ export default function RestaurantClient({
                       key={product.id}
                       type="button"
                       onClick={() => setSelected(product)}
-                      className="group flex w-full items-center gap-3 rounded-[22px] border border-black/6 bg-white p-3 text-left shadow-[0_6px_18px_rgba(0,0,0,0.035)] transition hover:border-black/10 hover:shadow-[0_10px_24px_rgba(0,0,0,0.05)]"
+                      className="group flex w-full items-center gap-3.5 rounded-[24px] border border-black/6 bg-white p-3.5 text-left shadow-[0_6px_18px_rgba(0,0,0,0.035)] transition hover:border-black/10 hover:shadow-[0_10px_24px_rgba(0,0,0,0.05)]"
                     >
-                      <div className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-[18px] bg-mist">
-                        {product.image && <Image src={product.image} alt={product.name} fill className="object-cover" sizes="72px" />}
+                      <div className="relative h-[92px] w-[92px] shrink-0 overflow-hidden rounded-[20px] bg-mist">
+                        {product.image && <Image src={product.image} alt={product.name} fill className="object-cover" sizes="92px" />}
                       </div>
 
                       <div className="min-w-0 flex-1">
