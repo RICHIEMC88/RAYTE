@@ -13,9 +13,9 @@ import PaymentModal, { type PaymentResult, type PaymentMethod } from "@/componen
 
 const PAYMENTS = [
   { id: "Efectivo", icon: Banknote, hint: "Pagas en efectivo al recibir", kind: "cash" as const },
-  { id: "Mercado Pago", icon: CreditCard, hint: "Tarjeta, OXXO o transferencia", kind: "mp" as const, mpMethod: "card" as PaymentMethod },
-  { id: "OXXO", icon: Receipt, hint: "Paga en efectivo en tiendas OXXO", kind: "mp" as const, mpMethod: "oxxo" as PaymentMethod },
-  { id: "SPEI", icon: Landmark, hint: "Transferencia desde tu banco", kind: "mp" as const, mpMethod: "transfer" as PaymentMethod },
+  { id: "OpenPay · Tarjeta", icon: CreditCard, hint: "Crédito o débito, hasta 12 cuotas", kind: "mp" as const, mpMethod: "card" as PaymentMethod },
+  { id: "OpenPay · OXXO", icon: Receipt, hint: "Paga en efectivo en tiendas OXXO", kind: "mp" as const, mpMethod: "store" as PaymentMethod },
+  { id: "OpenPay · SPEI", icon: Landmark, hint: "Transferencia desde tu banco", kind: "mp" as const, mpMethod: "bank_account" as PaymentMethod },
 ];
 const TIPS = [0, 10, 15, 25];
 const CHECKOUT_DRAFT_KEY = "rayte-checkout-draft";
@@ -253,10 +253,10 @@ export default function CheckoutPage() {
 
   /* Al aprobar/registrar el pago en el modal → crear el pedido. */
   const onPaymentSuccess = (p: PaymentResult) => {
-    let label = "Mercado Pago";
-    if (p.method === "card" && p.card_mask) label = `Mercado Pago ${p.card_mask}`;
-    if (p.method === "oxxo") label = "Mercado Pago · OXXO";
-    if (p.method === "transfer") label = "Mercado Pago · SPEI";
+    let label = "OpenPay · Tarjeta";
+    if (p.method === "card" && p.card?.card_number) label = `OpenPay ${p.card.card_number}`;
+    if (p.method === "store") label = "OpenPay · OXXO";
+    if (p.method === "bank_account") label = "OpenPay · SPEI";
     let scheduledFor: string | undefined;
     if (when === "schedule" && slot && days) {
       const d = new Date(days[dayIdx].date);
