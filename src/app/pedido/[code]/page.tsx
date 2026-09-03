@@ -80,6 +80,47 @@ export default function PedidoPage() {
     return () => clearInterval(t);
   }, []);
 
+  /* ── Tiempo real (SSE): estado en vivo + GPS del repartidor ── */
+  const [liveGPS, setLiveGPS] = useState<number | null>(null);
+  const [live, setLive] = useState(false);
+  useEffect(() => {
+    let es: EventSource | null = null;
+    let retry = 0;
+    const reload = () =>
+      fetch(`/api/orders?code=${encodeURIComponent(code)}`, { cache: "no-store" })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => { if (d?.order) setApi(d.order); })
+        .catch(() => {});
+    const open = () => {
+      if (es) return;
+      es = new EventSource(`/api/live?code=${encodeURIComponent(code)}`);
+      es.onopen = () => { setLive(true); retry = 0; };
+      es.addEventListener("status", (e) => {
+        try {
+          const d = JSON.parse((e as MessageEvent).data);
+          if (d.status === "delivered") setLiveGPS(1);
+          reload();
+        } catch { /* noop */ }
+      });
+      es.addEventListener("gps", (e) => {
+        try {
+          const d = JSON.parse((e as MessageEvent).data);
+          if (typeof d.progress === "number") setLiveGPS(d.progress);
+        } catch { /* noop */ }
+      });
+      es.addEventListener("delivered", () => { setLiveGPS(1); reload(); });
+      es.onerror = () => {
+        setLive(false);
+        es?.close();
+        es = null;
+        // el sondeo de 4s de arriba sigue como respaldo
+        if (retry < 100) { retry += 1; setTimeout(open, 3000); }
+      };
+    };
+    open();
+    return () => { setLive(false); es?.close(); };
+  }, [code]);
+
   const fallbackDriver = useMemo(() => {
     let h = 0;
     for (const c of code) h = (h * 31 + c.charCodeAt(0)) % 997;
@@ -141,7 +182,7 @@ export default function PedidoPage() {
     : "";
   const schedShort = schedDate ? new Intl.DateTimeFormat("es-MX", { hour: "numeric", minute: "2-digit" }).format(schedDate) : "";
 
-  const tripProgress = step >= 3 ? 1 : step === 2 && o.onWayAt ? Math.max(0.02, Math.min(0.96, (now - o.onWayAt) / 90000)) : step === 2 ? 0.3 : 0;
+  const tripProgress = step >= 3 ? 1 : step === 2 ? (liveGPS ?? (o.onWayAt ? Math.max(0.02, Math.min(0.96, (now - o.onWayAt) / 90000)) : 0.3)) : 0;
   const elapsed = (now - o.placedAt) / 1000;
   const minsLeft = Math.max(1, Math.round(o.etaMax - elapsed / 60 * 2.2));
 
@@ -172,7 +213,15 @@ export default function PedidoPage() {
           <Link href="/pedidos" aria-label="Volver" className="flex h-9 w-9 items-center justify-center rounded-full bg-mist"><ArrowLeft className="h-5 w-5" /></Link>
           <div className="flex-1">
             <h1 className="text-lg font-black tracking-tight">Pedido {o.code}</h1>
-            <p className="text-[12.5px] font-bold text-ink-soft">{o.storeName} · {itemCount} productos {api && <span className="text-[#0ea55b]">· en vivo</span>}</p>
+            <p className="text-[12.5px] font-bold text-ink-soft">{o.storeName} · {itemCount} productos {api && (
+              <span className="inline-flex items-center gap-1.5 text-[#0ea55b]">
+                <span className="relative flex h-2 w-2">
+                  {live && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#0ea55b] opacity-60" />}
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-[#0ea55b]" />
+                </span>
+                {live ? "en vivo" : "siguiendo"}
+              </span>
+            )}</p>
           </div>
           <span className={`rounded-full px-3 py-1.5 text-[11.5px] font-black ${step === 3 && !upcoming ? "bg-[#e6f8ee] text-[#0ea55b]" : "bg-brand-soft text-brand"}`}>
             {upcoming ? "Programado" : step === 3 ? "Entregado" : `Llega en ~${minsLeft} min`}
@@ -336,8 +385,8 @@ function RouteMap({ progress, step, ready, note }: { progress: number; step: num
         {step >= 2 && (
           <g>
             <circle cx={pt.x} cy={pt.y} r="14" fill="var(--brand-glow)" className="courier-ring" />
-            <circle cx={pt.x} cy={pt.y} r="11" style={{ fill: "var(--brand)" }} stroke="#fff" strokeWidth="2.5" />
-            <text x={pt.x} y={pt.y + 4} textAnchor="middle" fontSize="11">{step === 3 ? "🎉" : "🏍️"}</text>
+            <circle cx={pt.x} cy={pt.y} r="11" style={{ fill: "var(--brand)", transition: "cx 1s linear, cy 1s linear" }} stroke="#fff" strokeWidth="2.5" />
+            <text x={pt.x} y={pt.y + 4} textAnchor="middle" fontSize="11" style={{ transition: "x 1s linear, y 1s linear" }}>{step === 3 ? "🎉" : "🏍️"}</text>
           </g>
         )}
       </svg>

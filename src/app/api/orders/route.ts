@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { drivers, orders, restaurants, type DbOrder, type OrderItem } from "@/db/schema";
 import { sessionUser } from "@/lib/auth";
 import { currentPartner, partnerOwns } from "@/lib/partner-auth";
+import { publishOrder } from "@/lib/live";
 
 /* ============================================================
    Pedidos REALES en PostgreSQL.
@@ -70,6 +71,7 @@ async function autoAdvance(o: DbOrder): Promise<DbOrder> {
   }
   patch.status = target;
   const [row] = await db.update(orders).set(patch).where(and(eq(orders.id, o.id), eq(orders.status, o.status))).returning();
+  if (row) publishOrder(o.code, { status: row.status, driverId: row.driverId });
   return row ?? o;
 }
 
@@ -226,6 +228,7 @@ export async function PATCH(req: Request) {
       const patch: Record<string, unknown> = { status: next, manual: true, ...stampFor(next, new Date()) };
       if ((next === "on_way" || next === "delivered") && !o.driverId) patch.driverId = await randomDriverId();
       const [row] = await db.update(orders).set(patch).where(eq(orders.id, o.id)).returning();
+      if (row) publishOrder(o.code, { status: row.status, driverId: row.driverId });
       return NextResponse.json({ ok: true, order: row });
     }
 
@@ -242,6 +245,7 @@ export async function PATCH(req: Request) {
       if (!o.readyAt) patch.readyAt = new Date();
       if (!o.preparingAt) patch.preparingAt = new Date();
       const [row] = await db.update(orders).set(patch).where(eq(orders.id, o.id)).returning();
+      if (row) publishOrder(o.code, { status: row.status, driverId: row.driverId });
       return NextResponse.json({ ok: true, order: row });
     }
 
@@ -251,6 +255,7 @@ export async function PATCH(req: Request) {
         .set({ status: "delivered", manual: true, deliveredAt: new Date() })
         .where(eq(orders.id, o.id))
         .returning();
+      if (row) publishOrder(o.code, { status: row.status, driverId: row.driverId });
       return NextResponse.json({ ok: true, order: row });
     }
 
