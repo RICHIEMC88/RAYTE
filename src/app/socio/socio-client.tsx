@@ -499,6 +499,28 @@ const QUICK_EXTRA_SUGGESTIONS = [
   { name: "Topping de chocolate", price: 14 },
 ];
 
+/* Bloquea el scroll del fondo mientras un modal está abierto:
+   evita que el body siga scrolleando detrás del overlay (doble scroll). */
+function useLockBodyScroll(active: boolean) {
+  useEffect(() => {
+    if (!active) return;
+    const prev = document.body.style.overflow;
+    const prevPos = document.body.style.position;
+    const prevTop = document.body.style.top;
+    const scrollY = window.scrollY;
+    document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = "100%";
+    return () => {
+      document.body.style.overflow = prev;
+      document.body.style.position = prevPos;
+      document.body.style.top = prevTop;
+      window.scrollTo(0, scrollY);
+    };
+  }, [active]);
+}
+
 export default function SocioClient() {
   const [partner, setPartner] = useState<PartnerSession | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
@@ -1640,6 +1662,9 @@ function AddComboModal({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
+  /* Bloquear scroll del fondo mientras el modal está abierto */
+  useLockBodyScroll(true);
+
   const logicalCatalog = useMemo(() => buildLogicalCatalogExtras({
     existingRestaurantExtras,
     selectedExtras,
@@ -2018,6 +2043,9 @@ function AddProductModal({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
+  /* Bloquear scroll del fondo mientras el modal está abierto */
+  useLockBodyScroll(true);
+
   const finalSection = isCustomSection ? (customSection.trim() || "Especialidades") : section;
 
   const logicalCatalog = useMemo(() => buildLogicalCatalogExtras({
@@ -2387,6 +2415,9 @@ function EditProductModal({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
+  /* Bloquear scroll del fondo mientras el modal está abierto */
+  useLockBodyScroll(true);
+
   const logicalCatalog = useMemo(() => buildLogicalCatalogExtras({
     existingRestaurantExtras,
     selectedExtras,
@@ -2709,6 +2740,9 @@ function AddExtraModal({
   const [productId, setProductId] = useState<string>("all");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  /* Bloquear scroll del fondo mientras el modal está abierto */
+  useLockBodyScroll(true);
 
   const quickSuggestionProfile = useMemo(() => {
     const linked = productId === "all" ? null : products.find((p) => String(p.id) === productId) ?? null;
