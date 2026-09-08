@@ -76,8 +76,6 @@ const SUBCATS: Record<string, { label: string; tag: string }[]> = {
     { label: "Ginecología", tag: "ginecologia" },
     { label: "Pediatría", tag: "pediatria" },
     { label: "Dermatología", tag: "dermatologia" },
-    { label: "A domicilio", tag: "domicilio" },
-    { label: "Consultorio", tag: "consultorio" },
   ],
 };
 
@@ -269,6 +267,30 @@ export default function ServicesClient({
             </Link>
           )}
         </div>
+
+        {/* 🔽 Filtro de modalidad estilo comida: chips deslizables A domicilio / Consultorio */}
+        {cat === "salud" && (
+          <div className="no-scrollbar -mx-4 mt-2.5 flex gap-2 overflow-x-auto px-4 pb-0.5">
+            {[
+              { tag: "domicilio", label: "🛵 A domicilio", sup: "En tu casa" },
+              { tag: "consultorio", label: "🏪 Consultorio", sup: "En el local" },
+            ].map((m) => {
+              const active = subCat === m.tag;
+              return (
+                <button
+                  key={m.tag}
+                  type="button"
+                  onClick={() => setSubCat(active ? "" : m.tag)}
+                  className={`shrink-0 rounded-full px-3.5 py-1.5 text-[11.5px] font-black transition active:scale-95 ${
+                    active ? "bg-ink text-white shadow-md" : "bg-mist text-ink hover:bg-black/[0.07]"
+                  }`}
+                >
+                  {m.label}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         {/* Tiendas de mascotas (los productos también viven aquí) */}
         {cat === "mascotas" && petStores.length > 0 && (

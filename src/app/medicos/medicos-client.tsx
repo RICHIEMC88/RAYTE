@@ -25,8 +25,6 @@ const SPECIALTIES: { label: string; tag: string }[] = [
   { label: "Ginecología", tag: "ginecologia" },
   { label: "Pediatría", tag: "pediatria" },
   { label: "Dermatología", tag: "dermatologia" },
-  { label: "A domicilio", tag: "domicilio" },
-  { label: "Consultorio", tag: "consultorio" },
 ];
 
 const SPEC_ICONS: Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties; strokeWidth?: number }>> = {
@@ -46,7 +44,6 @@ const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u
 export default function MedicosClient({ services }: { services: Service[] }) {
   const [query, setQuery] = useState("");
   const [spec, setSpec] = useState("");
-  const [onlyDomicilio, setOnlyDomicilio] = useState(false);
   const q = norm(query.trim());
 
   const [stuck, setStuck] = useState(false);
@@ -66,8 +63,7 @@ export default function MedicosClient({ services }: { services: Service[] }) {
       else if (spec === "consultorio") ms = s.local;
       else ms = hay.includes(norm(spec));
     }
-    const md = !onlyDomicilio || s.domicilio;
-    return mq && ms && md;
+    return mq && ms;
   });
 
   return (
@@ -142,19 +138,31 @@ export default function MedicosClient({ services }: { services: Service[] }) {
           </div>
         </div>
 
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+        <div className="mt-3">
           <p className="text-[12px] font-bold text-ink-soft">
             Mostrando <span className="font-black" style={{ color: BLUE }}>{filtered.length}</span> profesionales · toca <b>Agendar</b> para elegir día y hora
           </p>
-          <button
-            type="button"
-            onClick={() => setOnlyDomicilio((v) => !v)}
-            className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11.5px] font-black transition active:scale-95 ${
-              onlyDomicilio ? "bg-[#0ea55b] text-white shadow-sm" : "bg-[#e6f8ee] text-[#0ea55b]"
-            }`}
-          >
-            <Home className="h-3.5 w-3.5" /> Solo a domicilio
-          </button>
+          {/* 🔽 Filtro de modalidad estilo comida: chips deslizables */}
+          <div className="no-scrollbar -mx-4 mt-2.5 flex gap-2 overflow-x-auto px-4 pb-0.5">
+            {[
+              { tag: "domicilio", label: "🛵 A domicilio" },
+              { tag: "consultorio", label: "🏪 Consultorio" },
+            ].map((m) => {
+              const active = spec === m.tag;
+              return (
+                <button
+                  key={m.tag}
+                  type="button"
+                  onClick={() => setSpec(active ? "" : m.tag)}
+                  className={`shrink-0 rounded-full px-3.5 py-1.5 text-[11.5px] font-black transition active:scale-95 ${
+                    active ? "bg-ink text-white shadow-md" : "bg-mist text-ink hover:bg-black/[0.07]"
+                  }`}
+                >
+                  {m.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {filtered.length === 0 ? (
