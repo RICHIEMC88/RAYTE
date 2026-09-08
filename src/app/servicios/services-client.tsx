@@ -4,7 +4,10 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { CalendarDays, Clock3, LayoutGrid, Search, Star, Home, Store, Stethoscope } from "lucide-react";
+import {
+  CalendarDays, Clock3, LayoutGrid, Search, Star, Home, Store, Stethoscope,
+  Syringe, Apple, Brain, Baby, HeartPulse, Sparkles, UserRound,
+} from "lucide-react";
 import type { Service } from "@/db/schema";
 import { formatMXN } from "@/lib/utils";
 import { serviceCat } from "@/lib/service-cats";
@@ -76,6 +79,19 @@ const SUBCATS: Record<string, { label: string; tag: string }[]> = {
     { label: "A domicilio", tag: "domicilio" },
     { label: "Consultorio", tag: "consultorio" },
   ],
+};
+
+/* Especialidades de salud con icono circular (mismo estilo que las categorías) */
+const SPEC_META: Record<string, { label: string; Icon: React.ComponentType<{ className?: string; style?: React.CSSProperties; strokeWidth?: number }> }> = {
+  medico: { label: "Médico", Icon: Stethoscope },
+  enfermeria: { label: "Enfermería", Icon: Syringe },
+  nutricionista: { label: "Nutrición", Icon: Apple },
+  psicologia: { label: "Psicología", Icon: Brain },
+  ginecologia: { label: "Ginecología", Icon: HeartPulse },
+  pediatria: { label: "Pediatría", Icon: Baby },
+  dermatologia: { label: "Dermatología", Icon: Sparkles },
+  domicilio: { label: "A domicilio", Icon: Home },
+  consultorio: { label: "Consultorio", Icon: Store },
 };
 
 const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -183,10 +199,37 @@ export default function ServicesClient({
             })}
           </div>
 
-          {/* 🏷️ Subcategorías debajo de los círculos */}
-          <div className="no-scrollbar -mx-4 mt-2.5 flex gap-2 overflow-x-auto px-4 pb-0.5">
+          {/* 🏷️ Subcategorías: círculos con icono (salud) o chips (resto) */}
+          <div className="no-scrollbar -mx-4 mt-2.5 flex gap-3 overflow-x-auto px-4 pb-0.5">
             {currentSubCats.map((sc) => {
               const active = subCat === sc.tag;
+              const spec = SPEC_META[sc.tag];
+              // Para salud, las especialidades son círculos con icono (igual que las categorías)
+              if (cat === "salud") {
+                const noIcon = sc.tag === "";
+                return (
+                  <button
+                    key={sc.tag}
+                    type="button"
+                    onClick={() => setSubCat(active && sc.tag !== "" ? "" : sc.tag)}
+                    className="flex w-[68px] shrink-0 flex-col items-center gap-1 transition active:scale-90"
+                  >
+                    <span
+                      className={`flex h-13 w-13 items-center justify-center rounded-full transition ${
+                        active
+                          ? "text-white shadow-md"
+                          : "bg-mist text-ink-soft hover:bg-black/[0.08]"
+                      }`}
+                      style={active ? { backgroundColor: currentCat.accent } : undefined}
+                    >
+                      {noIcon ? <LayoutGrid className="h-5.5 w-5.5" strokeWidth={2.2} /> : spec && <spec.Icon className="h-5.5 w-5.5" strokeWidth={2.2} />}
+                    </span>
+                    <span className={`text-[10.5px] font-extrabold transition ${active ? "font-black" : "text-ink-soft"}`} style={active ? { color: currentCat.accent } : undefined}>
+                      {sc.label}
+                    </span>
+                  </button>
+                );
+              }
               return (
                 <button
                   key={sc.label}

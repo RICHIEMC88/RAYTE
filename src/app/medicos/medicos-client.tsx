@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import {
   Stethoscope, CalendarDays, Clock3, Star, Home, Store, Search,
   BadgeCheck, UserRound, BriefcaseMedical, ShieldCheck, HeartPulse,
+  Syringe, Apple, Brain, Baby, Sparkles, LayoutGrid,
 } from "lucide-react";
 import type { Service } from "@/db/schema";
 import { formatMXN } from "@/lib/utils";
@@ -15,9 +16,9 @@ import BackButton from "@/components/back-button";
 const BLUE = "#1d6ae5";
 const SOFT = "#e8f1fe";
 
-/* Especialidades / filtros rápidos del directorio médico */
+/* Especialidades / filtros rápidos del directorio médico (con icono circular) */
 const SPECIALTIES: { label: string; tag: string }[] = [
-  { label: "Médico a domicilio", tag: "medico" },
+  { label: "Médico", tag: "medico" },
   { label: "Enfermería", tag: "enfermeria" },
   { label: "Nutrición", tag: "nutricionista" },
   { label: "Psicología", tag: "psicologia" },
@@ -25,7 +26,20 @@ const SPECIALTIES: { label: string; tag: string }[] = [
   { label: "Pediatría", tag: "pediatria" },
   { label: "Dermatología", tag: "dermatologia" },
   { label: "A domicilio", tag: "domicilio" },
+  { label: "Consultorio", tag: "consultorio" },
 ];
+
+const SPEC_ICONS: Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties; strokeWidth?: number }>> = {
+  medico: Stethoscope,
+  enfermeria: Syringe,
+  nutricionista: Apple,
+  psicologia: Brain,
+  ginecologia: HeartPulse,
+  pediatria: Baby,
+  dermatologia: Sparkles,
+  domicilio: Home,
+  consultorio: Store,
+};
 
 const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
@@ -46,7 +60,12 @@ export default function MedicosClient({ services }: { services: Service[] }) {
   const filtered = services.filter((s) => {
     const hay = norm(`${s.name} ${s.provider} ${s.description} ${s.proName}`);
     const mq = !q || hay.includes(q);
-    const ms = !spec || hay.includes(norm(spec));
+    let ms = true;
+    if (spec) {
+      if (spec === "domicilio") ms = s.domicilio;
+      else if (spec === "consultorio") ms = s.local;
+      else ms = hay.includes(norm(spec));
+    }
     const md = !onlyDomicilio || s.domicilio;
     return mq && ms && md;
   });
@@ -74,29 +93,29 @@ export default function MedicosClient({ services }: { services: Service[] }) {
             </div>
           </div>
 
-          {/* Filtros de especialidad */}
-          <div className="no-scrollbar -mx-4 mt-2.5 flex gap-2 overflow-x-auto px-4 pb-0.5">
-            <button
-              type="button"
-              onClick={() => setSpec("")}
-              className={`shrink-0 rounded-full px-3 py-1.5 text-[11.5px] font-bold transition active:scale-95 ${
-                !spec ? "bg-[#1d6ae5] text-white font-black shadow-sm" : "bg-mist text-ink-soft hover:text-ink hover:bg-black/[0.08]"
-              }`}
-            >
-              Todos
-            </button>
-            {SPECIALTIES.map((sp) => {
+          {/* Filtros de especialidad: círculos con icono */}
+          <div className="no-scrollbar -mx-4 mt-2.5 flex gap-3 overflow-x-auto px-4 pb-0.5">
+            {[{ tag: "", label: "Todos" } as const, ...SPECIALTIES].map((sp) => {
               const active = spec === sp.tag;
+              const Icon = sp.tag ? SPEC_ICONS[sp.tag] : null;
               return (
                 <button
-                  key={sp.tag}
+                  key={sp.tag || "todos"}
                   type="button"
                   onClick={() => setSpec(active ? "" : sp.tag)}
-                  className={`shrink-0 rounded-full px-3 py-1.5 text-[11.5px] font-bold transition active:scale-95 ${
-                    active ? "bg-[#1d6ae5] text-white font-black shadow-sm" : "bg-mist text-ink-soft hover:text-ink hover:bg-black/[0.08]"
-                  }`}
+                  className="flex w-[68px] shrink-0 flex-col items-center gap-1 transition active:scale-90"
                 >
-                  {sp.label}
+                  <span
+                    className={`flex h-13 w-13 items-center justify-center rounded-full transition ${
+                      active ? "text-white shadow-md" : "bg-mist text-ink-soft hover:bg-black/[0.08]"
+                    }`}
+                    style={active ? { backgroundColor: BLUE } : undefined}
+                  >
+                    {Icon ? <Icon className="h-5.5 w-5.5" strokeWidth={2.2} /> : <span className="text-[16px] font-black">+</span>}
+                  </span>
+                  <span className={`text-[10.5px] font-extrabold transition ${active ? "font-black" : "text-ink-soft"}`} style={active ? { color: BLUE } : undefined}>
+                    {sp.label}
+                  </span>
                 </button>
               );
             })}
