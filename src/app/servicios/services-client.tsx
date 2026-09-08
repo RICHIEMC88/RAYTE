@@ -5,8 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import {
-  CalendarDays, Clock3, LayoutGrid, Search, Star, Home, Store, Stethoscope,
-  Syringe, Apple, Brain, Baby, HeartPulse, Sparkles, UserRound,
+  CalendarDays, Clock3, LayoutGrid, Search, Star, Home, Store,
 } from "lucide-react";
 import type { Service } from "@/db/schema";
 import { formatMXN } from "@/lib/utils";
@@ -19,7 +18,6 @@ const CAT_LABELS: Record<string, string> = {
   bienestar: "Bienestar",
   mascotas: "Mascotas",
   hogar: "Hogar",
-  salud: "Médicos y Especialistas",
 };
 
 const SUBCATS: Record<string, { label: string; tag: string }[]> = {
@@ -30,10 +28,6 @@ const SUBCATS: Record<string, { label: string; tag: string }[]> = {
     { label: "Masajes", tag: "masaje" },
     { label: "Limpieza", tag: "limpieza" },
     { label: "Plomería", tag: "plomeria" },
-    { label: "Médico general", tag: "medico" },
-    { label: "Enfermería", tag: "enfermeria" },
-    { label: "Nutrición", tag: "nutricionista" },
-    { label: "Psicología", tag: "psicologia" },
     { label: "Peluquería canina", tag: "peluqueria" },
     { label: "Entrenador", tag: "entrenador" },
     { label: "A domicilio", tag: "domicilio" },
@@ -67,29 +61,6 @@ const SUBCATS: Record<string, { label: string; tag: string }[]> = {
     { label: "Técnico electricista", tag: "tecnico" },
     { label: "Chef a domicilio", tag: "chef" },
   ],
-  salud: [
-    { label: "Todos en Salud", tag: "" },
-    { label: "Médico a domicilio", tag: "medico" },
-    { label: "Enfermería", tag: "enfermeria" },
-    { label: "Nutrición", tag: "nutricionista" },
-    { label: "Psicología", tag: "psicologia" },
-    { label: "Ginecología", tag: "ginecologia" },
-    { label: "Pediatría", tag: "pediatria" },
-    { label: "Dermatología", tag: "dermatologia" },
-  ],
-};
-
-/* Especialidades de salud con icono circular (mismo estilo que las categorías) */
-const SPEC_META: Record<string, { label: string; Icon: React.ComponentType<{ className?: string; style?: React.CSSProperties; strokeWidth?: number }> }> = {
-  medico: { label: "Médico", Icon: Stethoscope },
-  enfermeria: { label: "Enfermería", Icon: Syringe },
-  nutricionista: { label: "Nutrición", Icon: Apple },
-  psicologia: { label: "Psicología", Icon: Brain },
-  ginecologia: { label: "Ginecología", Icon: HeartPulse },
-  pediatria: { label: "Pediatría", Icon: Baby },
-  dermatologia: { label: "Dermatología", Icon: Sparkles },
-  domicilio: { label: "A domicilio", Icon: Home },
-  consultorio: { label: "Consultorio", Icon: Store },
 };
 
 const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -201,33 +172,6 @@ export default function ServicesClient({
           <div className="no-scrollbar -mx-4 mt-2.5 flex gap-3 overflow-x-auto px-4 pb-0.5">
             {currentSubCats.map((sc) => {
               const active = subCat === sc.tag;
-              const spec = SPEC_META[sc.tag];
-              // Para salud, las especialidades son círculos con icono (igual que las categorías)
-              if (cat === "salud") {
-                const noIcon = sc.tag === "";
-                return (
-                  <button
-                    key={sc.tag}
-                    type="button"
-                    onClick={() => setSubCat(active && sc.tag !== "" ? "" : sc.tag)}
-                    className="flex w-[68px] shrink-0 flex-col items-center gap-1 transition active:scale-90"
-                  >
-                    <span
-                      className={`flex h-13 w-13 items-center justify-center rounded-full transition ${
-                        active
-                          ? "text-white shadow-md"
-                          : "bg-mist text-ink-soft hover:bg-black/[0.08]"
-                      }`}
-                      style={active ? { backgroundColor: currentCat.accent } : undefined}
-                    >
-                      {noIcon ? <LayoutGrid className="h-5.5 w-5.5" strokeWidth={2.2} /> : spec && <spec.Icon className="h-5.5 w-5.5" strokeWidth={2.2} />}
-                    </span>
-                    <span className={`text-[10.5px] font-extrabold transition ${active ? "font-black" : "text-ink-soft"}`} style={active ? { color: currentCat.accent } : undefined}>
-                      {sc.label}
-                    </span>
-                  </button>
-                );
-              }
               return (
                 <button
                   key={sc.label}
@@ -256,41 +200,7 @@ export default function ServicesClient({
               Mostrando {filtered.length} de {services.length} · toca <span className="font-black" style={{ color: currentCat.accent }}>Agendar</span> para escoger día y hora
             </p>
           </div>
-          {/* Los médicos tienen su propio directorio dedicado */}
-          {cat === "salud" && (
-            <Link
-              href="/medicos"
-              className="shrink-0 flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[12px] font-black text-white transition hover:brightness-110 active:scale-95 shadow-sm"
-              style={{ backgroundColor: "#1d6ae5", boxShadow: "0 8px 20px rgba(29,106,229,0.3)" }}
-            >
-              <Stethoscope className="h-3.5 w-3.5" /> Directorio de médicos
-            </Link>
-          )}
         </div>
-
-        {/* 🔽 Filtro de modalidad estilo comida: chips deslizables A domicilio / Consultorio */}
-        {cat === "salud" && (
-          <div className="no-scrollbar -mx-4 mt-2.5 flex gap-2 overflow-x-auto px-4 pb-0.5">
-            {[
-              { tag: "domicilio", label: "🛵 A domicilio", sup: "En tu casa" },
-              { tag: "consultorio", label: "🏪 Consultorio", sup: "En el local" },
-            ].map((m) => {
-              const active = subCat === m.tag;
-              return (
-                <button
-                  key={m.tag}
-                  type="button"
-                  onClick={() => setSubCat(active ? "" : m.tag)}
-                  className={`shrink-0 rounded-full px-3.5 py-1.5 text-[11.5px] font-black transition active:scale-95 ${
-                    active ? "bg-ink text-white shadow-md" : "bg-mist text-ink hover:bg-black/[0.07]"
-                  }`}
-                >
-                  {m.label}
-                </button>
-              );
-            })}
-          </div>
-        )}
 
         {/* Tiendas de mascotas (los productos también viven aquí) */}
         {cat === "mascotas" && petStores.length > 0 && (

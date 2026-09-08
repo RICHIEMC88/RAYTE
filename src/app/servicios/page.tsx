@@ -12,7 +12,9 @@ export default async function ServiciosPage({
   searchParams: Promise<{ cat?: string }>;
 }) {
   const { cat } = await searchParams;
-  const list = await db.select().from(services).where(eq(services.available, true)).orderBy(asc(services.sort));
+  /* Los médicos y especialistas viven en su propio directorio (/medicos), no en Citas y Servicios */
+  const list = (await db.select().from(services).where(eq(services.available, true)).orderBy(asc(services.sort)))
+    .filter((s) => s.category !== "salud");
   const cross = await crossSellItems(null);
 
   /* Las tiendas de mascotas viven en Mascotas de Citas y Servicios */
