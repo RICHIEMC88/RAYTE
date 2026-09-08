@@ -47,6 +47,7 @@ export async function POST(req: Request) {
           phone: partnerAccounts.phone,
           password: partnerAccounts.password,
           restaurantId: partnerAccounts.restaurantId,
+          role: partnerAccounts.role,
           store: restaurants,
         })
         .from(partnerAccounts)
@@ -64,7 +65,8 @@ export async function POST(req: Request) {
       }
 
       const { token, expiresAt } = await createPartnerSession(account.id);
-      const { password: _pw, ...partner } = account;
+      const { password: _pw, role, ...base } = account;
+      const partner = { ...base, isAdmin: role === "admin" };
 
       const res = NextResponse.json({ ok: true, partner });
       res.cookies.set(PARTNER_COOKIE, token, {

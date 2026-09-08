@@ -166,6 +166,8 @@ export const partnerAccounts = pgTable("partner_accounts", {
   email: varchar("email", { length: 120 }).notNull().unique(),
   password: text("password").notNull(),
   phone: varchar("phone", { length: 30 }).notNull().default(""),
+  /* rol de la cuenta: "owner" (dueño de una tienda) o "admin" (gestiona TODAS las tiendas) */
+  role: varchar("role", { length: 20 }).notNull().default("owner"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

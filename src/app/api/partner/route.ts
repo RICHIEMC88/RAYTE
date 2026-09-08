@@ -24,7 +24,18 @@ export async function GET(req: Request) {
   const partner = await currentPartner();
   if (!partner) return NextResponse.json({ error: "Sesión de socio requerida" }, { status: 401 });
 
-  const slug = new URL(req.url).searchParams.get("slug");
+  const sp = new URL(req.url).searchParams;
+
+  /* ?list=1 → (solo ADMIN) lista TODAS las tiendas para el selector del panel */
+  if (sp.get("list") === "1") {
+    if (!partner.isAdmin) {
+      return NextResponse.json({ error: "No tienes permiso de administrador" }, { status: 403 });
+    }
+    const stores = await db.select().from(restaurants).orderBy(asc(restaurants.name));
+    return NextResponse.json({ stores });
+  }
+
+  const slug = sp.get("slug");
   if (!slug) return NextResponse.json({ error: "slug requerido" }, { status: 400 });
   const [store] = await db.select().from(restaurants).where(eq(restaurants.slug, slug));
   if (!store) return NextResponse.json({ error: "Tienda no encontrada" }, { status: 404 });

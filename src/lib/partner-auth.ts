@@ -34,6 +34,8 @@ export type PartnerPublic = {
   email: string;
   phone: string;
   restaurantId: number;
+  /* true = cuenta de ADMINISTRADOR que puede ver y gestionar TODAS las tiendas */
+  isAdmin: boolean;
   store: typeof restaurants.$inferSelect;
 };
 
@@ -47,6 +49,7 @@ export async function partnerOf(token: string): Promise<PartnerPublic | null> {
         email: partnerAccounts.email,
         phone: partnerAccounts.phone,
         restaurantId: partnerAccounts.restaurantId,
+        role: partnerAccounts.role,
         expiresAt: partnerSessions.expiresAt,
         store: restaurants,
       })
@@ -67,6 +70,7 @@ export async function partnerOf(token: string): Promise<PartnerPublic | null> {
       email: row.email,
       phone: row.phone,
       restaurantId: row.restaurantId,
+      isAdmin: row.role === "admin",
       store: row.store,
     };
   } catch {
@@ -86,7 +90,9 @@ export async function currentPartner(): Promise<PartnerPublic | null> {
   }
 }
 
-/* ¿Este socio es dueño del restaurante dado? */
+/* ¿Este socio es dueño del restaurante dado?
+   Un ADMINISTRADOR posee (y por lo tanto puede gestionar) TODAS las tiendas. */
 export function partnerOwns(partner: PartnerPublic, restaurantId: number | string): boolean {
+  if (partner.isAdmin) return true;
   return Number(partner.restaurantId) === Number(restaurantId);
 }

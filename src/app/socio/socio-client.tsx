@@ -20,6 +20,7 @@ type PartnerSession = {
   email: string;
   phone: string;
   restaurantId: number;
+  isAdmin?: boolean;
   store: Restaurant;
 };
 
@@ -549,6 +550,9 @@ export default function SocioClient() {
   /* Vista activa del panel (estilo Uber Eats Manager): Inicio · Pedidos · Menú · Extras */
   const [activeTab, setActiveTab] = useState<"inicio" | "pedidos" | "menu" | "extras">("inicio");
 
+  /* Admin: lista de TODAS las tiendas para el selector */
+  const [adminStores, setAdminStores] = useState<Restaurant[]>([]);
+
   const showToast = (msg: string) => {
     setToastMsg(msg);
     setTimeout(() => setToastMsg(null), 3500);
@@ -653,6 +657,22 @@ export default function SocioClient() {
       if (ordersTimer.current) clearInterval(ordersTimer.current);
     };
   }, [partner, loadStoreData, loadOrders]);
+
+  /* Admin: cargar la lista completa de tiendas para el selector */
+  useEffect(() => {
+    if (!partner?.isAdmin) return;
+    fetch("/api/partner?list=1", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (d?.stores) setAdminStores(d.stores); })
+      .catch(() => {});
+  }, [partner?.isAdmin]);
+
+  /* Admin: cambiar a otra tienda (actualiza partner.store y dispara la recarga) */
+  const switchAdminStore = useCallback((store: Restaurant) => {
+    if (!partner) return;
+    setPartner({ ...partner, restaurantId: store.id, store });
+    showToast(`Editando ${store.name}`);
+  }, [partner]);
 
   const rubro = rubroOf(partner?.store?.categorySlug ?? data?.store?.categorySlug);
   const RubroIcon = rubro.Icon;
@@ -1031,11 +1051,28 @@ export default function SocioClient() {
               {rubro.emoji}
             </span>
             <div className="min-w-0">
-              <p className="truncate text-[13.5px] sm:text-[15px] font-black text-ink">
-                {partner.store.name}
-              </p>
+              {partner.isAdmin ? (
+                <select
+                  value={partner.store.id}
+                  onChange={(e) => {
+                    const store = adminStores.find((s) => s.id === Number(e.target.value));
+                    if (store) switchAdminStore(store);
+                  }}
+                  className="max-w-[240px] truncate rounded-lg border border-black/10 bg-mist px-2 py-1 text-[13px] font-black text-ink outline-none focus:border-ink cursor-pointer"
+                  aria-label="Cambiar de tienda"
+                >
+                  {adminStores.map((s) => (
+                    <option key={s.id} value={s.id}>{s.name}</option>
+                  ))}
+                </select>
+              ) : (
+                <p className="truncate text-[13.5px] sm:text-[15px] font-black text-ink">
+                  {partner.store.name}
+                </p>
+              )}
               <p className="truncate text-[10px] sm:text-[11px] font-bold text-ink-soft">
-                Gestión del negocio · {partner.partnerName}
+                {partner.isAdmin ? "Modo Administrador · " : "Gestión del negocio · "}
+                {partner.partnerName}
               </p>
             </div>
           </div>

@@ -217,7 +217,22 @@ async function main() {
     createdCount++;
   }
 
-  console.log(`✓ ${createdCount} cuentas de socios creadas con éxito (contraseña por defecto: socio123)`);
+  /* ── Cuenta de ADMINISTRADOR: entra y gestiona TODOS los negocios ── */
+  if (allStores[0]) {
+    const adminStore = allStores[0];
+    await db.insert(partnerAccounts).values({
+      restaurantId: adminStore.id,
+      username: "admin",
+      partnerName: "Administrador Rayte",
+      email: "admin@rayte.mx",
+      phone: "477 000 0000",
+      password: hashPassword("admin123"),
+      role: "admin",
+    });
+    createdCount++;
+  }
+
+  console.log(`✓ ${createdCount} cuentas creadas con éxito (contraseña por defecto: socio123 · admin: admin123)`);
   await pool.end();
 }
 
