@@ -524,6 +524,9 @@ export default function SocioClient() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
+  /* Vista activa del panel (estilo Uber Eats Manager): Inicio · Pedidos · Menú · Extras */
+  const [activeTab, setActiveTab] = useState<"inicio" | "pedidos" | "menu" | "extras">("inicio");
+
   const showToast = (msg: string) => {
     setToastMsg(msg);
     setTimeout(() => setToastMsg(null), 3500);
@@ -998,17 +1001,19 @@ export default function SocioClient() {
         )}
       </AnimatePresence>
 
-      {/* Cabecera con datos del socio autenticado y botón de cerrar sesión */}
-      <header className="sticky top-0 z-40 border-b border-black/5 bg-white/95 px-3 sm:px-4 py-3 backdrop-blur">
+      {/* Cabecera estilo Uber Eats Manager: nombre, estado Abierto/Cerrado y salir */}
+      <header className="sticky top-0 z-40 border-b border-black/5 bg-white/95 px-3 sm:px-4 py-2.5 backdrop-blur">
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-2">
           <div className="flex items-center gap-2.5 min-w-0">
-            <span className="flex h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: rubro.accent }} />
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[16px]" style={{ backgroundColor: rubro.soft }}>
+              {rubro.emoji}
+            </span>
             <div className="min-w-0">
-              <p className="truncate text-[13px] sm:text-[14px] font-black text-ink">
+              <p className="truncate text-[13.5px] sm:text-[15px] font-black text-ink">
                 {partner.store.name}
               </p>
-              <p className="truncate text-[10.5px] sm:text-[11px] font-bold text-ink-soft">
-                {partner.partnerName} · {rubro.emoji} {rubro.label}
+              <p className="truncate text-[10px] sm:text-[11px] font-bold text-ink-soft">
+                Gestión del negocio · {partner.partnerName}
               </p>
             </div>
           </div>
@@ -1026,9 +1031,40 @@ export default function SocioClient() {
             </button>
           </div>
         </div>
+
+        {/* Barra de pestañas (Inicio · Pedidos · Menú · Extras) */}
+        <div className="mx-auto mt-2 flex max-w-4xl gap-1 overflow-x-auto no-scrollbar">
+          {[
+            { id: "inicio", label: "Inicio", icon: <Sparkles className="h-3.5 w-3.5" />, count: null },
+            { id: "pedidos", label: `Pedidos`, icon: <ShoppingBag className="h-3.5 w-3.5" />, count: orders.length },
+            { id: "menu", label: rubro.catalogTitle, icon: <RubroIcon className="h-3.5 w-3.5" style={{ color: rubro.accent }} />, count: null },
+            { id: "extras", label: "Extras", icon: <Sparkles className="h-3.5 w-3.5" style={{ color: rubro.accent }} />, count: null },
+          ].map((t) => {
+            const isActive = activeTab === t.id;
+            return (
+              <button
+                key={t.id}
+                onClick={() => setActiveTab(t.id as typeof activeTab)}
+                className={`flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-[12px] font-black transition cursor-pointer ${
+                  isActive ? "bg-ink text-white shadow-sm" : "text-ink-soft hover:bg-mist"
+                }`}
+              >
+                {t.icon} {t.label}
+                {t.count !== null && t.count > 0 && (
+                  <span className={`ml-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-black ${isActive ? "bg-white/20 text-white" : "bg-ink text-white"}`}>
+                    {t.count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
       </header>
 
       <main className="mx-auto max-w-4xl space-y-4 px-3 sm:px-4 pt-3 sm:pt-4">
+        {/* ═══ PESTAÑA INICIO: portada + métricas + consejos ═══ */}
+        {activeTab === "inicio" && (
+          <>
         {/* Portada y control de tienda */}
         {data && (
           <section className="overflow-hidden rounded-[24px] bg-white p-3.5 sm:p-5 shadow-xs">
@@ -1078,8 +1114,11 @@ export default function SocioClient() {
             <Stat icon={<Sparkles className="h-4 w-4" />} label="Extras activos" value={`${activeExtraCount}`} soft={rubro.soft} color={rubro.accent} />
           </section>
         )}
+          </>
+        )}
 
-        {/* Pedidos en vivo (REALES, con botón Simular comensal 100% funcional) */}
+        {/* ═══ PESTAÑA PEDIDOS ═══ */}
+        {activeTab === "pedidos" && (
         <section className="overflow-hidden rounded-[24px] bg-white p-3.5 sm:p-5 shadow-xs">
           <div className="flex items-center justify-between gap-2">
             <p className="flex items-center gap-1.5 text-[14.5px] sm:text-[15px] font-black">
@@ -1159,8 +1198,10 @@ export default function SocioClient() {
             })}
           </div>
         </section>
+        )}
 
-        {/* Consejos del rubro */}
+        {/* ═══ PESTAÑA INICIO: Consejos ═══ */}
+        {activeTab === "inicio" && (
         <section className="overflow-hidden rounded-[24px] p-3.5 sm:p-5" style={{ backgroundColor: rubro.soft }}>
           <p className="flex items-center gap-2 text-[13.5px] font-black" style={{ color: rubro.accent }}>
             <Lightbulb className="h-4 w-4" /> Consejos para tu {rubro.label.toLowerCase()}
@@ -1174,10 +1215,12 @@ export default function SocioClient() {
             ))}
           </ul>
         </section>
+        )}
 
         {/* ════════════════════════════════════════════════════════════
-            SECCIÓN: TU MENÚ (AGREGAR PLATILLOS, COMBOS/PAQUETES, EXTRAS)
+            PESTAÑA MENÚ
             ════════════════════════════════════════════════════════════ */}
+        {activeTab === "menu" && (
         <section className="overflow-hidden rounded-[24px] bg-white p-3.5 sm:p-5 shadow-xs">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
@@ -1192,6 +1235,9 @@ export default function SocioClient() {
 
             {/* BOTONES PRINCIPALES: AGREGAR PLATILLO, CREAR COMBO, EXTRA */}
             <div className="flex flex-wrap items-center gap-2">
+              <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-mist px-3 py-2 text-[11.5px] font-black text-ink-soft">
+                <ShoppingBag className="h-3.5 w-3.5" /> {orders.length} pedidos activos
+              </span>
               <button
                 onClick={() => setShowAddProduct(true)}
                 className="flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[12px] font-black text-white shadow-xs transition hover:brightness-110 active:scale-95 cursor-pointer"
@@ -1340,10 +1386,12 @@ export default function SocioClient() {
             })}
           </div>
         </section>
+        )}
 
         {/* ════════════════════════════════════════════════════════════
-            SECCIÓN: EXTRAS DEL NEGOCIO (ORDENADOS ALFABÉTICAMENTE A-Z)
+            PESTAÑA EXTRAS
             ════════════════════════════════════════════════════════════ */}
+        {activeTab === "extras" && (
         <section className="overflow-hidden rounded-[24px] bg-white p-3.5 sm:p-5 shadow-xs">
           <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
@@ -1435,6 +1483,7 @@ export default function SocioClient() {
             )}
           </div>
         </section>
+        )}
 
         <p className="pt-1 pb-4 text-center text-[10.5px] font-black tracking-widest text-ink-soft/60 uppercase">
           Panel Exclusivo {rubro.label} · {partner.store.name}
@@ -1742,7 +1791,7 @@ function AddComboModal({
               <p className="text-[11.5px] font-black uppercase tracking-wider text-[#7c3aed] flex items-center gap-1.5">
                 <Package className="h-3.5 w-3.5" /> Selecciona qué platillos incluye este paquete:
               </p>
-              <div className="no-scrollbar mt-2 flex flex-wrap gap-1.5 max-h-32 overflow-y-auto">
+              <div className="no-scrollbar mt-2 flex flex-wrap gap-1.5">
                 {existingProducts.map((p) => {
                   const isSelected = selectedItems.includes(p.name);
                   return (
@@ -1876,7 +1925,7 @@ function AddComboModal({
               </span>
             </div>
 
-            <div className="mt-2 space-y-1.5 max-h-36 overflow-y-auto pr-1">
+            <div className="mt-2 space-y-1.5">
               {logicalCatalog.extras.length === 0 ? (
                 <p className="rounded-xl bg-white p-3 text-center text-[11.5px] font-bold text-ink-soft">
                   No hay extras lógicos registrados para {logicalCatalog.profileLabel}. Crea primero el extra correcto en tu catálogo.
@@ -2197,7 +2246,7 @@ function AddProductModal({
             </p>
 
             {/* LISTA DESPLEGABLE DE EXTRAS EXISTENTES A-Z */}
-            <div className="mt-2.5 space-y-1.5 max-h-48 overflow-y-auto pr-1">
+            <div className="mt-2.5 space-y-1.5">
               {logicalCatalog.extras.length === 0 ? (
                 <p className="rounded-xl bg-white p-3 text-center text-[11.5px] font-bold text-ink-soft shadow-2xs">
                   No hay extras lógicos registrados para {logicalCatalog.profileLabel}. Crea el primero abajo 👇
@@ -2535,7 +2584,7 @@ function EditProductModal({
             </p>
 
             {/* LISTA DESPLEGABLE */}
-            <div className="mt-2.5 space-y-1.5 max-h-48 overflow-y-auto pr-1">
+            <div className="mt-2.5 space-y-1.5">
               {logicalCatalog.extras.length === 0 ? (
                 <p className="rounded-xl bg-white p-3 text-center text-[11.5px] font-bold text-ink-soft">
                   No hay extras lógicos registrados para {logicalCatalog.profileLabel}.
