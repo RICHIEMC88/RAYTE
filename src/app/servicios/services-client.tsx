@@ -28,9 +28,13 @@ const SUBCATS: Record<string, { label: string; tag: string }[]> = {
     { label: "Limpieza", tag: "limpieza" },
     { label: "Plomería", tag: "plomeria" },
     { label: "Médico general", tag: "medico" },
+    { label: "Enfermería", tag: "enfermeria" },
+    { label: "Nutrición", tag: "nutricionista" },
+    { label: "Psicología", tag: "psicologia" },
     { label: "Peluquería canina", tag: "peluqueria" },
     { label: "Entrenador", tag: "entrenador" },
     { label: "A domicilio", tag: "domicilio" },
+    { label: "Consultorio", tag: "consultorio" },
   ],
   belleza: [
     { label: "Todas en Belleza", tag: "" },
@@ -63,9 +67,14 @@ const SUBCATS: Record<string, { label: string; tag: string }[]> = {
   salud: [
     { label: "Todos en Salud", tag: "" },
     { label: "Médico a domicilio", tag: "medico" },
-    { label: "Enfermería general", tag: "enfermeria" },
-    { label: "Nutricionista", tag: "nutricionista" },
-    { label: "Psicología a domicilio", tag: "psicologia" },
+    { label: "Enfermería", tag: "enfermeria" },
+    { label: "Nutrición", tag: "nutricionista" },
+    { label: "Psicología", tag: "psicologia" },
+    { label: "Ginecología", tag: "ginecologia" },
+    { label: "Pediatría", tag: "pediatria" },
+    { label: "Dermatología", tag: "dermatologia" },
+    { label: "A domicilio", tag: "domicilio" },
+    { label: "Consultorio", tag: "consultorio" },
   ],
 };
 
@@ -108,11 +117,12 @@ export default function ServicesClient({
   const filtered = services.filter((s) => {
     const inCat = !cat || s.category === cat;
     const matchesQuery = !q || norm(`${s.name} ${s.provider} ${s.description} ${s.category}`).includes(q);
-    const matchesSub =
-      !subCat ||
-      (subCat === "domicilio"
-        ? s.domicilio
-        : norm(`${s.name} ${s.provider} ${s.description} ${s.category}`).includes(norm(subCat)));
+    let matchesSub = true;
+    if (subCat) {
+      if (subCat === "domicilio") matchesSub = s.domicilio;
+      else if (subCat === "consultorio") matchesSub = s.local;
+      else matchesSub = norm(`${s.name} ${s.provider} ${s.description} ${s.category}`).includes(norm(subCat));
+    }
     return inCat && matchesQuery && matchesSub;
   });
 
