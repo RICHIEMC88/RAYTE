@@ -35,7 +35,7 @@ export function CategoryGrid({ categories }: { categories: Category[] }) {
         )}
         <TopButton href="/viajes" label="Rayte" bg="#16121b" color="#fbbf24" icon={CarFront} delay={0.06} />
         <TopButton href="/servicios" label="Citas y servicios" bg="#f2ecff" color="#7c3aed" icon={CalendarDays} delay={0.12} />
-        <TopButton href="/servicios?cat=salud" label="Salud" bg="#e8f1fe" color="#1d6ae5" icon={Stethoscope} delay={0.18} />
+        <TopButton href="/medicos" label="Salud" bg="#e8f1fe" color="#1d6ae5" icon={Stethoscope} delay={0.18} />
       </div>
     </section>
   );
@@ -218,7 +218,7 @@ export function SaludRow({ services }: { services: Service[] }) {
           </h2>
           <p className="mt-0.5 text-[13px] font-bold text-ink-soft">Consultas médicas, enfermería y especialistas a domicilio</p>
         </div>
-        <Link href="/servicios?cat=salud" className="flex items-center gap-1 rounded-full bg-[#e8f1fe] px-3.5 py-2 text-[12.5px] font-black text-[#1d6ae5] transition hover:bg-[#d5e5fd]">
+        <Link href="/medicos" className="flex items-center gap-1 rounded-full bg-[#e8f1fe] px-3.5 py-2 text-[12.5px] font-black text-[#1d6ae5] transition hover:bg-[#d5e5fd]">
           Ver médicos <ChevronRight className="h-4 w-4" />
         </Link>
       </div>

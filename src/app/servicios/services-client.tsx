@@ -4,7 +4,7 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { CalendarDays, Clock3, LayoutGrid, Search, Star, Home, Store } from "lucide-react";
+import { CalendarDays, Clock3, LayoutGrid, Search, Star, Home, Store, Stethoscope } from "lucide-react";
 import type { Service } from "@/db/schema";
 import { formatMXN } from "@/lib/utils";
 import { serviceCat } from "@/lib/service-cats";
@@ -198,10 +198,24 @@ export default function ServicesClient({
       </div>
 
       <div className="mx-auto max-w-5xl px-4 pt-1.5">
-        <h1 className="text-xl font-black tracking-tight leading-tight">{cat ? (CAT_LABELS[cat] ?? "Servicios") : "Elige tu servicio"}</h1>
-        <p className="mt-0.5 text-[12px] font-bold text-ink-soft">
-          Mostrando {filtered.length} de {services.length} · toca <span className="font-black" style={{ color: currentCat.accent }}>Agendar</span> para escoger día y hora
-        </p>
+        <div className="flex items-end justify-between gap-2">
+          <div>
+            <h1 className="text-xl font-black tracking-tight leading-tight">{cat ? (CAT_LABELS[cat] ?? "Servicios") : "Elige tu servicio"}</h1>
+            <p className="mt-0.5 text-[12px] font-bold text-ink-soft">
+              Mostrando {filtered.length} de {services.length} · toca <span className="font-black" style={{ color: currentCat.accent }}>Agendar</span> para escoger día y hora
+            </p>
+          </div>
+          {/* Los médicos tienen su propio directorio dedicado */}
+          {cat === "salud" && (
+            <Link
+              href="/medicos"
+              className="shrink-0 flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[12px] font-black text-white transition hover:brightness-110 active:scale-95 shadow-sm"
+              style={{ backgroundColor: "#1d6ae5", boxShadow: "0 8px 20px rgba(29,106,229,0.3)" }}
+            >
+              <Stethoscope className="h-3.5 w-3.5" /> Directorio de médicos
+            </Link>
+          )}
+        </div>
 
         {/* Tiendas de mascotas (los productos también viven aquí) */}
         {cat === "mascotas" && petStores.length > 0 && (

@@ -19,7 +19,7 @@ const quick = [
   { href: "/buscar", label: "Comida", desc: "Restaurantes, panaderías y más", icon: Utensils, color: "#ea580c", soft: "#ffedd5", match: (p: string) => p.startsWith("/restaurante") || p.startsWith("/buscar") },
   { href: "/viajes", label: "Rayte", desc: "Viaja por la ciudad", icon: CarFront, color: "#d97706", soft: "#fef3c7", match: (p: string) => p.startsWith("/viajes") },
   { href: "/servicios", label: "Citas y Servicios", desc: "Belleza, hogar y más", icon: CalendarDays, color: "#7c3aed", soft: "#f3e8ff", match: (p: string) => p.startsWith("/servicios") && !p.includes("cat=salud") },
-  { href: "/servicios?cat=salud", label: "Salud", desc: "Médicos y farmacias 24h", icon: Stethoscope, color: "#1d6ae5", soft: "#e8f1fe", match: (p: string) => p.startsWith("/servicios") && p.includes("cat=salud") },
+  { href: "/medicos", label: "Salud", desc: "Médicos y farmacias 24h", icon: Stethoscope, color: "#1d6ae5", soft: "#e8f1fe", match: (p: string) => p.startsWith("/medicos") },
 ];
 
 /* ── Menú lateral (asa) para páginas SIN barra inferior ── */
