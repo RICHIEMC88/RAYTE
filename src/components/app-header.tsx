@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -21,6 +21,7 @@ export default function AppHeader() {
   const setAddress = useCart((s) => s.setAddress);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
+  const [homeQ, setHomeQ] = useState("");
   const [bellOpen, setBellOpen] = useState(false);
   const [unread, setUnread] = useState(true);
 
@@ -32,6 +33,15 @@ export default function AppHeader() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  /* La barra de búsqueda es un campo REAL: al tocarlo el teclado se abre de
+     inmediato (1 solo toque) y al pulsar "buscar" lleva a /buscar con la query.
+     Antes era un botón que navegaba a /buscar y luego tocaba tocar de nuevo. */
+  const goSearch = (e?: FormEvent) => {
+    e?.preventDefault();
+    const v = homeQ.trim();
+    router.push(v ? `/buscar?q=${encodeURIComponent(v)}` : "/buscar");
+  };
 
   return (
     <header className="sticky top-0 z-40">
@@ -50,17 +60,23 @@ export default function AppHeader() {
               <span className="text-[26px] font-black tracking-tight text-white italic">rayte</span>
             </Link>
 
-            {/* Buscador central amplio */}
+            {/* Buscador central amplio: campo real (1 toque = teclado) */}
             <div className="flex-1 max-w-xl">
-              <button
-                onClick={() => router.push("/buscar")}
-                className="flex w-full items-center gap-2.5 rounded-full bg-white px-4 py-2.5 text-left shadow-md transition hover:shadow-lg"
+              <form
+                onSubmit={goSearch}
+                className="flex w-full items-center gap-2.5 rounded-full bg-white px-4 py-2.5 shadow-md transition hover:shadow-lg"
               >
                 <Search className="h-4.5 w-4.5 shrink-0 text-brand" strokeWidth={2.6} />
-                <span className="truncate text-[13.5px] font-bold text-ink-soft">
-                  Buscar platillos, panaderías, citas, médicos...
-                </span>
-              </button>
+                <input
+                  value={homeQ}
+                  onChange={(e) => setHomeQ(e.target.value)}
+                  placeholder="Buscar platillos, panaderías, citas, médicos..."
+                  enterKeyHint="search"
+                  autoCapitalize="off"
+                  autoCorrect="off"
+                  className="w-full bg-transparent text-[13.5px] font-bold text-ink outline-none placeholder:text-ink-soft"
+                />
+              </form>
             </div>
 
             {/* Dirección + Notificaciones */}
@@ -238,17 +254,23 @@ export default function AppHeader() {
               </div>
             </div>
 
-            {/* Buscador optimizado inmediatamente abajo */}
+            {/* Buscador real inmediatamente abajo: 1 toque = teclado de inmediato */}
             <div className="mt-2">
-              <button
-                onClick={() => router.push("/buscar")}
-                className="flex w-full items-center gap-2 rounded-full bg-white px-3.5 py-2.5 text-left shadow-md active:scale-[0.99]"
+              <form
+                onSubmit={goSearch}
+                className="flex w-full items-center gap-2 rounded-full bg-white px-3.5 py-2.5 shadow-md"
               >
                 <Search className="h-4.5 w-4.5 shrink-0 text-brand" strokeWidth={2.6} />
-                <span className="truncate text-[13px] font-bold text-ink-soft">
-                  Buscar platillos, panaderías, citas, médicos...
-                </span>
-              </button>
+                <input
+                  value={homeQ}
+                  onChange={(e) => setHomeQ(e.target.value)}
+                  placeholder="Buscar platillos, panaderías, citas, médicos..."
+                  enterKeyHint="search"
+                  autoCapitalize="off"
+                  autoCorrect="off"
+                  className="w-full bg-transparent text-[13px] font-bold text-ink outline-none placeholder:text-ink-soft"
+                />
+              </form>
             </div>
           </div>
         </div>

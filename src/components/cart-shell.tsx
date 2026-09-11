@@ -207,18 +207,13 @@ export default function CartShell() {
         )}
       </AnimatePresence>
 
+      {/* Fondo: se quita al instante al cerrar para no "comerse" el siguiente toque */}
+      {drawerOpen && (
+        <div onClick={closeDrawer} className="fixed inset-0 z-[80] bg-black/42 backdrop-blur-[2px]" />
+      )}
       <AnimatePresence>
         {drawerOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={closeDrawer}
-              className="fixed inset-0 z-[80] bg-black/42 backdrop-blur-[2px]"
-            />
-
-            <motion.aside
+          <motion.aside
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
@@ -487,8 +482,7 @@ export default function CartShell() {
                   </section>
                 </div>
               )}
-            </motion.aside>
-          </>
+          </motion.aside>
         )}
       </AnimatePresence>
 

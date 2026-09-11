@@ -29,17 +29,13 @@ function SideMenu({ pathname }: { pathname: string }) {
 
   return (
     <>
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setOpen(false)}
-            className="fixed inset-0 z-[70] bg-black/50 backdrop-blur-[3px]"
-          />
-        )}
-      </AnimatePresence>
+      {/* Fondo: se quita al instante al cerrar para no "comerse" el siguiente toque */}
+      {open && (
+        <div
+          onClick={() => setOpen(false)}
+          className="fixed inset-0 z-[70] bg-black/50 backdrop-blur-[3px]"
+        />
+      )}
 
       <div className="fixed top-16 left-0 z-[75]">
         {!open ? (
@@ -124,19 +120,20 @@ export default function BottomNav() {
 
   return (
     <>
-      {/* Hoja del menú: se despliega desde el botón flotante */}
+      {/* Hoja del menú: se despliega desde el botón flotante.
+          El fondo oscuro se quita AL INSTANTE al cerrar (sin animación de salida):
+          si se desvanece poco a poco, "se come" el primer toque del usuario
+          (ej. tocar la barra de búsqueda tras navegar) y obliga a dar dos toques. */}
+      {menuOpen && (
+        <div
+          onClick={() => setMenuOpen(false)}
+          className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-[3px]"
+        />
+      )}
       <AnimatePresence>
         {menuOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setMenuOpen(false)}
-              className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-[3px]"
-            />
-            <motion.div
-              initial={{ y: 40, opacity: 0, scale: 0.96 }}
+          <motion.div
+            initial={{ y: 40, opacity: 0, scale: 0.96 }}
               animate={{ y: 0, opacity: 1, scale: 1 }}
               exit={{ y: 40, opacity: 0, scale: 0.96 }}
               transition={{ type: "spring", stiffness: 380, damping: 30 }}
@@ -189,8 +186,7 @@ export default function BottomNav() {
                   );
                 })}
               </div>
-            </motion.div>
-          </>
+          </motion.div>
         )}
       </AnimatePresence>
 
