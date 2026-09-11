@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Search, X, Star, Clock3, Bike, Store, Sparkles, ChevronRight, Dices, MapPin, Heart } from "lucide-react";
+import { Search, X, Star, Clock3, Bike, Store, Sparkles, ChevronRight, Dices, BadgePercent, Heart } from "lucide-react";
 import type { Category, Restaurant, Service } from "@/db/schema";
 import { formatMXN } from "@/lib/utils";
 import { useFavorites } from "@/store/favorites";
@@ -269,53 +269,55 @@ export default function SearchClient({
           {results.rStores.length === 0 ? (
             <Empty favOnly={favOnly} onClearFav={() => setFavOnly(false)} />
           ) : (
-            <div className="mt-3 grid grid-cols-2 gap-3 sm:gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-3 grid gap-3">
               {results.rStores.map((r, i) => {
                 const fav = isFavorite(r.slug);
                 return (
                   <Fragment key={r.id}>
                     {i === 4 && crossItems.length > 0 && (
-                      <div className="col-span-2 min-w-0 w-full sm:col-span-2 lg:col-span-3">
+                      <div className="min-w-0 w-full">
                         <CrossSell items={crossItems} title={crossTitle} />
                       </div>
                     )}
                     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(i * 0.04, 0.3) }}>
-                      <Link href={`/restaurante/${r.slug}`} className="group block">
-                        <div className="relative h-24 overflow-hidden rounded-2xl bg-mist sm:h-36 sm:rounded-[22px]">
-                          <Image src={r.image} alt={r.name} fill className="object-cover transition-transform duration-700 group-hover:scale-[1.07]" sizes="(max-width: 640px) 50vw, 33vw" />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
-                          <div className="absolute top-1.5 right-1.5 flex items-center gap-1 sm:top-2 sm:right-2 sm:gap-1.5">
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                toggleFavorite(r.slug);
-                              }}
-                              aria-label={fav ? "Quitar de favoritos" : "Guardar en favoritos"}
-                              className={`flex h-6 w-6 items-center justify-center rounded-full bg-white/90 shadow-md backdrop-blur transition active:scale-90 sm:h-7 sm:w-7`}
-                            >
-                              <Heart className={`h-3.5 w-3.5 ${fav ? "fill-brand text-brand" : "text-ink-soft hover:text-brand"}`} />
-                            </button>
-                            {!r.isOpen && <span className="rounded-full bg-white px-1.5 py-0.5 text-[9px] font-black sm:px-2 sm:text-[10px]">Cerrado</span>}
+                      <Link href={`/restaurante/${r.slug}`} className="group flex items-stretch gap-3">
+                        <div className="relative h-[104px] w-[104px] shrink-0 overflow-hidden rounded-2xl bg-mist">
+                          <Image src={r.image} alt={r.name} fill className="object-cover transition-transform duration-700 group-hover:scale-[1.07]" sizes="104px" />
+                          {!r.isOpen && <span className="absolute bottom-1.5 left-1.5 rounded-full bg-white/95 px-2 py-0.5 text-[9.5px] font-black">Cerrado</span>}
+                        </div>
+                        <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
+                          <p className="truncate text-[15px] font-black text-ink">{r.name}</p>
+                          <div className="mt-1 flex items-center gap-1.5 text-[11.5px] font-bold text-ink-soft">
+                            <span className="flex items-center gap-0.5 text-ink"><Star className="h-3.5 w-3.5 fill-amber-pop text-amber-pop" />{r.rating.toFixed(1)}</span>
+                            <span className="text-ink-soft/50">·</span>
+                            <span className="flex items-center gap-1"><Clock3 className="h-3 w-3" />{r.timeMin}-{r.timeMax} min</span>
+                            <span className="text-ink-soft/50">·</span>
+                            <span className="flex items-center gap-1"><Bike className="h-3.5 w-3.5" />{r.deliveryFee === 0 ? "Gratis" : formatMXN(r.deliveryFee)}</span>
                           </div>
-                          <div className="absolute inset-x-2.5 bottom-1.5 sm:inset-x-3 sm:bottom-2.5">
-                            <p className="truncate text-[14px] font-black text-white drop-shadow sm:text-[16px]">{r.name}</p>
+                          <div className="mt-1 flex items-center gap-1.5">
+                            {r.promo && (
+                              <span className="flex items-center gap-1 rounded-full bg-brand-soft px-2 py-0.5 text-[10.5px] font-black text-brand"><BadgePercent className="h-3 w-3" />{r.promo}</span>
+                            )}
+                            {r.isTurbo && <span className="rounded-full bg-ink px-2 py-0.5 text-[10px] font-black text-white">Turbo</span>}
+                            {r.allowsPickup && <span className="rounded-full bg-[#e6f8ee] px-2 py-0.5 text-[10px] font-black text-[#0ea55b]">Recoger</span>}
                           </div>
                         </div>
-                        <div className="mt-1.5 flex items-center gap-1.5 text-[10.5px] font-bold text-ink-soft sm:mt-2 sm:text-[11.5px]">
-                          <span className="flex items-center gap-1 rounded-full bg-brand-soft px-1.5 py-0.5 font-black text-brand sm:px-2"><Clock3 className="h-3 w-3" />{r.timeMin}-{r.timeMax} min</span>
-                          <span className="flex min-w-0 items-center gap-1"><Bike className="h-3.5 w-3.5 shrink-0" />{r.deliveryFee === 0 ? "Gratis" : formatMXN(r.deliveryFee)}</span>
-                          <span className="ml-auto flex shrink-0 items-center gap-0.5"><Star className="h-3 w-3 fill-amber-pop text-amber-pop" />{r.rating.toFixed(1)}</span>
-                        </div>
-                        <p className="mt-0.5 hidden items-center gap-1 text-[10.5px] font-bold text-ink-soft sm:flex">
-                          <MapPin className="h-3 w-3 shrink-0 text-brand/70" /> <span className="truncate">{r.address}</span>
-                          {r.allowsPickup && <span className="ml-1 shrink-0 rounded-full bg-[#e6f8ee] px-1.5 py-0.5 text-[9.5px] font-black text-[#0ea55b]">Recoger</span>}
-                        </p>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            toggleFavorite(r.slug);
+                          }}
+                          aria-label={fav ? "Quitar de favoritos" : "Guardar en favoritos"}
+                          className="flex h-9 w-9 shrink-0 self-center items-center justify-center rounded-full border border-black/10 bg-white shadow-sm transition active:scale-90"
+                        >
+                          <Heart className={`h-4.5 w-4.5 ${fav ? "fill-brand text-brand" : "text-ink-soft"}`} />
+                        </button>
                       </Link>
                     </motion.div>
                     {i === results.rStores.length - 1 && results.rStores.length < 5 && crossItems.length > 0 && (
-                      <div className="col-span-2 min-w-0 w-full sm:col-span-2 lg:col-span-3">
+                      <div className="min-w-0 w-full">
                         <CrossSell items={crossItems} title={crossTitle} />
                       </div>
                     )}
