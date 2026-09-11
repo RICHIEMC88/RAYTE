@@ -211,7 +211,12 @@ export default function BottomNav() {
           ) : (
             <>
               <Zap className="h-4 w-4 fill-brand text-brand" strokeWidth={2.5} />
-              <span className="text-[10px] font-black tracking-[0.18em] text-white [writing-mode:vertical-rl]">MENÚ</span>
+              <span className="flex flex-col items-center text-[10px] leading-[1.15] font-black text-white">
+                <span>M</span>
+                <span>E</span>
+                <span>N</span>
+                <span>Ú</span>
+              </span>
             </>
           )}
         </motion.button>
