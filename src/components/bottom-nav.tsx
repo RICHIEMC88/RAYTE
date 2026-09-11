@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Search, ReceiptText, User, CarFront, Utensils, CalendarDays, Stethoscope, X, Zap, ChevronUp, ChevronRight } from "lucide-react";
+import { Home, Search, ReceiptText, User, CarFront, Utensils, CalendarDays, Stethoscope, X, Zap, ChevronRight } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
 const items = [
@@ -194,24 +194,26 @@ export default function BottomNav() {
         )}
       </AnimatePresence>
 
-      {/* Botón flotante a la derecha: el menú completo en un solo punto,
-          sin tapar el centro de la pantalla */}
-      <div className="pointer-events-none fixed inset-x-0 bottom-4 z-50 flex justify-end pr-3" style={{ marginBottom: "env(safe-area-inset-bottom)" }}>
+      {/* Botón flotante: tab pegado al borde derecho (estilo "asa"), al primer clic
+          se abre el menú. Sin animación de rebote: no estorba y no tapa contenido. */}
+      <div className="fixed right-0 top-1/2 z-50 -translate-y-1/2">
         <motion.button
           onClick={() => setMenuOpen((v) => !v)}
-          whileTap={{ scale: 0.92 }}
-          animate={menuOpen ? { scale: 1, y: 0 } : { y: [0, -4, 0] }}
-          transition={menuOpen ? { duration: 0.15 } : { repeat: Infinity, duration: 2.4, ease: "easeInOut" }}
+          whileTap={{ scale: 0.94 }}
           aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
-          className="pointer-events-auto flex items-center gap-2 rounded-full bg-ink/95 py-3 pr-5 pl-4 shadow-[0_10px_30px_rgba(0,0,0,0.35)] ring-2 ring-white/90 backdrop-blur"
+          className={`flex flex-col items-center justify-center gap-1.5 rounded-l-2xl bg-ink/95 shadow-[0_6px_20px_rgba(0,0,0,0.35)] ring-2 ring-white/90 backdrop-blur ${menuOpen ? "h-14 w-11" : "h-24 w-9"}`}
         >
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand/90">
-            <Zap className="h-3.5 w-3.5 fill-white text-white" strokeWidth={2.5} />
-          </span>
-          <span className="text-[14.5px] font-black tracking-tight text-white">Menú</span>
-          <motion.span animate={{ rotate: menuOpen ? 180 : 0 }} transition={{ type: "spring", stiffness: 420, damping: 26 }}>
-            <ChevronUp className="h-4 w-4 text-white/70" strokeWidth={3} />
-          </motion.span>
+          {menuOpen ? (
+            <>
+              <X className="h-5 w-5 text-white" strokeWidth={2.8} />
+              <span className="text-[9px] font-black tracking-widest text-white/70">CERRAR</span>
+            </>
+          ) : (
+            <>
+              <Zap className="h-4 w-4 fill-brand text-brand" strokeWidth={2.5} />
+              <span className="text-[10px] font-black tracking-[0.18em] text-white [writing-mode:vertical-rl] rotate-180">MENÚ</span>
+            </>
+          )}
         </motion.button>
       </div>
     </>
