@@ -269,22 +269,22 @@ export default function SearchClient({
           {results.rStores.length === 0 ? (
             <Empty favOnly={favOnly} onClearFav={() => setFavOnly(false)} />
           ) : (
-            <div className="mt-3 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-3 grid grid-cols-2 gap-3 sm:gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {results.rStores.map((r, i) => {
                 const fav = isFavorite(r.slug);
                 return (
                   <Fragment key={r.id}>
                     {i === 4 && crossItems.length > 0 && (
-                      <div className="sm:col-span-2 lg:col-span-3 min-w-0 w-full">
+                      <div className="col-span-2 min-w-0 w-full sm:col-span-2 lg:col-span-3">
                         <CrossSell items={crossItems} title={crossTitle} />
                       </div>
                     )}
                     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(i * 0.04, 0.3) }}>
                       <Link href={`/restaurante/${r.slug}`} className="group block">
-                        <div className="relative h-36 overflow-hidden rounded-[22px]">
-                          <Image src={r.image} alt={r.name} fill className="object-cover transition-transform duration-700 group-hover:scale-[1.07]" sizes="33vw" />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-                          <div className="absolute top-2 right-2 flex items-center gap-1.5">
+                        <div className="relative h-24 overflow-hidden rounded-2xl bg-mist sm:h-36 sm:rounded-[22px]">
+                          <Image src={r.image} alt={r.name} fill className="object-cover transition-transform duration-700 group-hover:scale-[1.07]" sizes="(max-width: 640px) 50vw, 33vw" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+                          <div className="absolute top-1.5 right-1.5 flex items-center gap-1 sm:top-2 sm:right-2 sm:gap-1.5">
                             <button
                               type="button"
                               onClick={(e) => {
@@ -293,29 +293,29 @@ export default function SearchClient({
                                 toggleFavorite(r.slug);
                               }}
                               aria-label={fav ? "Quitar de favoritos" : "Guardar en favoritos"}
-                              className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 shadow-md backdrop-blur transition active:scale-90"
+                              className={`flex h-6 w-6 items-center justify-center rounded-full bg-white/90 shadow-md backdrop-blur transition active:scale-90 sm:h-7 sm:w-7`}
                             >
-                              <Heart className={`h-4 w-4 ${fav ? "fill-brand text-brand" : "text-ink-soft hover:text-brand"}`} />
+                              <Heart className={`h-3.5 w-3.5 ${fav ? "fill-brand text-brand" : "text-ink-soft hover:text-brand"}`} />
                             </button>
-                            {!r.isOpen && <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-black">Cerrado</span>}
+                            {!r.isOpen && <span className="rounded-full bg-white px-1.5 py-0.5 text-[9px] font-black sm:px-2 sm:text-[10px]">Cerrado</span>}
                           </div>
-                          <div className="absolute inset-x-3 bottom-2.5">
-                            <p className="truncate text-[16px] font-black text-white drop-shadow">{r.name}</p>
+                          <div className="absolute inset-x-2.5 bottom-1.5 sm:inset-x-3 sm:bottom-2.5">
+                            <p className="truncate text-[14px] font-black text-white drop-shadow sm:text-[16px]">{r.name}</p>
                           </div>
                         </div>
-                        <div className="mt-2 flex items-center gap-1.5 text-[11.5px] font-bold text-ink-soft">
-                          <span className="flex items-center gap-1 rounded-full bg-brand-soft px-2 py-0.5 font-black text-brand"><Clock3 className="h-3 w-3" />{r.timeMin}-{r.timeMax} min</span>
-                          <span className="flex items-center gap-1"><Bike className="h-3.5 w-3.5" />{r.deliveryFee === 0 ? "Envío gratis" : formatMXN(r.deliveryFee)}</span>
-                          <span className="ml-auto flex items-center gap-0.5"><Star className="h-3 w-3 fill-amber-pop text-amber-pop" />{r.rating.toFixed(1)}</span>
+                        <div className="mt-1.5 flex items-center gap-1.5 text-[10.5px] font-bold text-ink-soft sm:mt-2 sm:text-[11.5px]">
+                          <span className="flex items-center gap-1 rounded-full bg-brand-soft px-1.5 py-0.5 font-black text-brand sm:px-2"><Clock3 className="h-3 w-3" />{r.timeMin}-{r.timeMax} min</span>
+                          <span className="flex min-w-0 items-center gap-1"><Bike className="h-3.5 w-3.5 shrink-0" />{r.deliveryFee === 0 ? "Gratis" : formatMXN(r.deliveryFee)}</span>
+                          <span className="ml-auto flex shrink-0 items-center gap-0.5"><Star className="h-3 w-3 fill-amber-pop text-amber-pop" />{r.rating.toFixed(1)}</span>
                         </div>
-                        <p className="mt-0.5 flex items-center gap-1 text-[10.5px] font-bold text-ink-soft">
+                        <p className="mt-0.5 hidden items-center gap-1 text-[10.5px] font-bold text-ink-soft sm:flex">
                           <MapPin className="h-3 w-3 shrink-0 text-brand/70" /> <span className="truncate">{r.address}</span>
                           {r.allowsPickup && <span className="ml-1 shrink-0 rounded-full bg-[#e6f8ee] px-1.5 py-0.5 text-[9.5px] font-black text-[#0ea55b]">Recoger</span>}
                         </p>
                       </Link>
                     </motion.div>
                     {i === results.rStores.length - 1 && results.rStores.length < 5 && crossItems.length > 0 && (
-                      <div className="sm:col-span-2 lg:col-span-3 min-w-0 w-full">
+                      <div className="col-span-2 min-w-0 w-full sm:col-span-2 lg:col-span-3">
                         <CrossSell items={crossItems} title={crossTitle} />
                       </div>
                     )}
