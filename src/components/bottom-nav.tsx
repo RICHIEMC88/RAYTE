@@ -194,8 +194,9 @@ export default function BottomNav() {
         )}
       </AnimatePresence>
 
-      {/* Botón flotante: el menú completo en un solo punto, sin ocupar la barra de abajo */}
-      <div className="pointer-events-none fixed inset-x-0 bottom-4 z-50 flex justify-center" style={{ marginBottom: "env(safe-area-inset-bottom)" }}>
+      {/* Botón flotante a la derecha: el menú completo en un solo punto,
+          sin tapar el centro de la pantalla */}
+      <div className="pointer-events-none fixed inset-x-0 bottom-4 z-50 flex justify-end pr-3" style={{ marginBottom: "env(safe-area-inset-bottom)" }}>
         <motion.button
           onClick={() => setMenuOpen((v) => !v)}
           whileTap={{ scale: 0.92 }}
