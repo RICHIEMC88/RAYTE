@@ -31,6 +31,36 @@ body {
   font-family: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
 }
 
+/* ── Anti-zoom involuntario en móvil ──
+   1) touch-action: manipulation → el DOBLE TOQUE sobre botones/enlaces NO hace
+      zoom (antes: tocar dos veces seguidos dejaba la página al 200% y había que
+      deshacerlo pellizcando). El pellizco intencional sigue funcionando.
+   2) Los inputs con letra < 16px hacen zoom al enfocarlos (sobre todo iOS) →
+      en móvil se uniforman a 16px.
+   3) El navegador no "auto-ajusta" el tamaño de la letra. */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  /* El doble toque (en cualquier parte: botones, fotos, espacio vacío) ya no hace zoom */
+  touch-action: manipulation;
+}
+a,
+button,
+input,
+select,
+textarea,
+label,
+[role="button"] {
+  touch-action: manipulation;
+}
+@media (max-width: 768px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
 /* Escala tipográfica alineada al sistema Base de Uber: 12, 14, 16, 18, 20, 24, 32, 36 */
 .text-xs {
   font-size: 12px !important;
