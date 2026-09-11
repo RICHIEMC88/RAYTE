@@ -2,6 +2,22 @@ import { NextResponse } from "next/server";
 import { and, desc, eq, gte, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { appointments, services, serviceOptions, type ClinicalSnapshot } from "@/db/schema";
+import { externalBusy } from "@/lib/ics-busy";
+import { getServiceCalUrl } from "@/lib/service-cal";
+
+const YEAR_MS = 365 * 24 * 3600 * 1000;
+
+/* Ocupados del calendario externo del negocio (Google/Outlook) — opcional */
+async function getExternalBusy(serviceId: number, from: number, to: number): Promise<{ start: number; end: number }[]> {
+  const url = await getServiceCalUrl(serviceId);
+  if (!url) return [];
+  try {
+    return await externalBusy(url, from, to);
+  } catch (e) {
+    console.warn("Calendario externo no disponible:", (e as Error).message);
+    return [];
+  }
+}
 
 /* Estados que bloquean el horario */
 const ACTIVE = ["scheduled", "confirmed"];
@@ -96,6 +112,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Ese horario acaba de ocuparse. Elige otra hora, por favor." }, { status: 409 });
     }
 
+    /* ⛔ Calendario externo del negocio: si el propio negocio ya tiene algo
+       agendado ahí (Google/Outlook), Rayte no deja doblar el horario */
+    const extBusy = await getExternalBusy(service.id, startAt.getTime() - 30 * 86400e3, endAt.getTime() + 30 * 86400e3);
+    const extClash = extBusy.some((b) => b.start < endAt.getTime() && b.end > startAt.getTime());
+    if (extClash) {
+      return NextResponse.json({ error: "Ese horario está ocupado en el calendario del profesional. Elige otra hora, por favor." }, { status: 409 });
+    }
+
     const code = `ZA-${Math.floor(1000 + Math.random() * 9000)}`;
 
     const [row] = await db
@@ -131,7 +155,8 @@ export async function POST(req: Request) {
 export async function GET(req: Request) {
   const sp = new URL(req.url).searchParams;
 
-  /* Horarios ocupados de un servicio (para bloquear el calendario) */
+  /* Horarios ocupados de un servicio (para bloquear el calendario).
+     Incluye citas de Rayte + eventos del calendario externo del negocio. */
   if (sp.get("busy")) {
     const [service] = await db.select().from(services).where(eq(services.slug, sp.get("busy")!));
     if (!service) return NextResponse.json({ error: "Servicio no encontrado" }, { status: 404 });
@@ -141,7 +166,12 @@ export async function GET(req: Request) {
       .select({ startAt: appointments.startAt, endAt: appointments.endAt })
       .from(appointments)
       .where(and(eq(appointments.serviceId, service.id), inArray(appointments.status, ACTIVE), gte(appointments.endAt, since)));
-    return NextResponse.json({ busy: rows, durationMin: service.durationMin });
+    const ext = await getExternalBusy(service.id, since.getTime(), since.getTime() + YEAR_MS);
+    const busy = [
+      ...rows.map((r) => ({ startAt: r.startAt, endAt: r.endAt })),
+      ...ext.map((b) => ({ startAt: new Date(b.start), endAt: new Date(b.end) })),
+    ];
+    return NextResponse.json({ busy, durationMin: service.durationMin });
   }
 
   /* Agenda de un profesional: todas las citas de su servicio */

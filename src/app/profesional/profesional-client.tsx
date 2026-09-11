@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ArrowLeft, Banknote, CalendarDays, CircleCheck, ClipboardList, Clock3, Home, Lightbulb, MapPin, Phone, Plus, RefreshCw,
+  ArrowLeft, Banknote, CalendarClock, CalendarDays, CircleCheck, ClipboardList, Clock3, Home, Lightbulb, MapPin, Phone, Plus, RefreshCw,
   Scissors, HeartPulse, PawPrint, Wrench, Stethoscope, Star, Store, Users, X, XCircle, FileText, AlertTriangle, Trash2, Tag, Check, Sparkles, Search
 } from "lucide-react";
 import { formatMXN } from "@/lib/utils";
@@ -792,6 +792,11 @@ export default function ProfesionalClient({ services }: { services: ServiceLite[
   const [manualSaving, setManualSaving] = useState(false);
   const [manualError, setManualError] = useState("");
   const [manualOk, setManualOk] = useState("");
+  /* Sincronización con el calendario propio del negocio (ICS) */
+  const [calUrl, setCalUrl] = useState("");
+  const [calSaved, setCalSaved] = useState<string | null>(null); // URL ya guardada (o "")
+  const [calSaving, setCalSaving] = useState(false);
+  const [calError, setCalError] = useState("");
   const [patientQuery, setPatientQuery] = useState("");
   const [noteFor, setNoteFor] = useState<string | null>(null); // cita con el expediente abierto
   const [noteDraft, setNoteDraft] = useState("");
@@ -834,6 +839,8 @@ export default function ProfesionalClient({ services }: { services: ServiceLite[
       if (servRes.ok) {
         const data = await servRes.json();
         setOptions((prev) => (sameJson(prev, data.options ?? []) ? prev : (data.options ?? [])));
+        setCalSaved(data.externalCalUrl ?? "");
+        setCalUrl((prev) => prev || (data.externalCalUrl ?? ""));
       }
     } catch { /* reintenta */ }
   }, []);
@@ -890,6 +897,26 @@ export default function ProfesionalClient({ services }: { services: ServiceLite[
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "availability", serviceId: service.id, available: next }),
     });
+  };
+
+  /* Sincronizar con el calendario propio del negocio (Google/Outlook vía ICS) */
+  const saveCalUrl = async (url: string) => {
+    if (!service) return;
+    setCalSaving(true);
+    setCalError("");
+    const res = await fetch("/api/services", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "external_cal", serviceId: service.id, url }),
+    });
+    const data = res.ok ? await res.json() : null;
+    setCalSaving(false);
+    if (res.ok && data?.ok) {
+      setCalSaved(data.externalCalUrl ?? "");
+      setCalUrl(data.externalCalUrl ?? "");
+    } else {
+      setCalError(data?.error ?? "No se pudo guardar. Intenta de nuevo.");
+    }
   };
 
   /* Expediente: guardar nota clínica / bitácora de una cita */
@@ -1239,6 +1266,49 @@ export default function ProfesionalClient({ services }: { services: ServiceLite[
           >
             <motion.span layout className={`absolute top-1 h-9 w-9 rounded-full bg-white shadow-md ${service?.available ? "right-1" : "left-1"}`} />
           </button>
+        </section>
+
+        {/* Calendario propio del negocio (Google / Outlook vía ICS) */}
+        <section className="rounded-[26px] bg-white p-5 shadow-sm">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-[13px] font-black text-ink-soft uppercase">Tu calendario propio</p>
+              <p className={`mt-1 flex items-center gap-1.5 text-[16px] font-black ${calSaved ? "text-[#0ea55b]" : "text-ink-soft"}`}>
+                <CalendarClock className="h-4.5 w-4.5 shrink-0" /> {calSaved ? "Emparejado con Rayte" : "Sin conectar"}
+              </p>
+              <p className="mt-1 text-[11.5px] leading-snug font-bold text-ink-soft">
+                {calSaved
+                  ? "Rayte bloquea automáticamente las horas que ya tienes ocupadas en tu calendario."
+                  : "Conecta Google o Outlook Calendar y Rayte no dejará agendar horas en las que ya estás ocupado."}
+              </p>
+            </div>
+            <span className={`mt-1 h-2.5 w-2.5 shrink-0 rounded-full ${calSaved ? "bg-[#0ea55b]" : "bg-black/15"}`} />
+          </div>
+          <input
+            value={calUrl}
+            onChange={(e) => { setCalUrl(e.target.value); setCalError(""); }}
+            placeholder="Pega aquí el enlace ICS (https://...)"
+            className="mt-3 w-full rounded-2xl border border-black/10 bg-mist px-4 py-3 text-[13px] font-bold outline-none placeholder:text-ink-soft/50 focus:border-black/25"
+          />
+          <p className="mt-2 text-[10.5px] leading-snug font-bold text-ink-soft/80">
+            Google Calendar: Ajustes y compartir → “Ver en otras apps” (o “Integrar con otras aplicaciones”) → copia el <b>enlace ICS privado</b> de tu calendario y pégalo aquí. No se piden contraseñas.
+          </p>
+          {calError && <p className="mt-2 rounded-2xl bg-red-50 px-4 py-2.5 text-[12.5px] font-black text-red-600">{calError}</p>}
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button
+              onClick={() => saveCalUrl(calUrl.trim())}
+              disabled={calSaving || !service}
+              className="flex flex-1 items-center justify-center gap-2 rounded-full py-3 text-[13px] font-black text-white transition disabled:opacity-50"
+              style={{ backgroundColor: conf.accent }}
+            >
+              <CalendarClock className="h-4 w-4" /> {calSaving ? "Leyendo calendario..." : calSaved ? "Actualizar enlace" : "Conectar calendario"}
+            </button>
+            {calSaved && (
+              <button onClick={() => saveCalUrl("")} disabled={calSaving} className="rounded-full bg-mist px-4 py-3 text-[12.5px] font-black text-ink-soft transition active:scale-95 disabled:opacity-50">
+                Quitar
+              </button>
+            )}
+          </div>
         </section>
 
         {/* Stats del día */}

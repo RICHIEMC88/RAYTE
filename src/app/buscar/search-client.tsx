@@ -281,8 +281,8 @@ export default function SearchClient({
                     )}
                     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(i * 0.04, 0.3) }}>
                       <Link href={`/restaurante/${r.slug}`} className="group flex items-stretch gap-3">
-                        <div className="relative h-[104px] w-[104px] shrink-0 overflow-hidden rounded-2xl bg-mist">
-                          <Image src={r.image} alt={r.name} fill className="object-cover transition-transform duration-700 group-hover:scale-[1.07]" sizes="104px" />
+                        <div className="relative h-[124px] w-[124px] shrink-0 overflow-hidden rounded-2xl bg-mist">
+                          <Image src={r.image} alt={r.name} fill className="object-cover transition-transform duration-700 group-hover:scale-[1.07]" sizes="124px" />
                           {!r.isOpen && <span className="absolute bottom-1.5 left-1.5 rounded-full bg-white/95 px-2 py-0.5 text-[9.5px] font-black">Cerrado</span>}
                         </div>
                         <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">

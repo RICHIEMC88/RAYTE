@@ -5,6 +5,8 @@ import { NextResponse } from "next/server";
 import { asc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { services, serviceOptions, type MedicalVerificationDocs, type UploadedDocument } from "@/db/schema";
+import { externalBusy } from "@/lib/ics-busy";
+import { getServiceCalUrl, setServiceCalUrl } from "@/lib/service-cal";
 
 export const runtime = "nodejs";
 
@@ -122,7 +124,8 @@ export async function GET(req: Request) {
       .from(serviceOptions)
       .where(eq(serviceOptions.serviceId, service.id))
       .orderBy(asc(serviceOptions.sort));
-    return NextResponse.json({ service, options });
+    const externalCalUrl = await getServiceCalUrl(service.id);
+    return NextResponse.json({ service, options, externalCalUrl });
   }
 
   const list = await db.select().from(services).orderBy(asc(services.sort));
@@ -170,6 +173,25 @@ export async function POST(req: Request) {
         .returning();
 
       return NextResponse.json({ ok: true, option: opt }, { status: 201 });
+    }
+
+    /* 📅 Calendario externo (ICS) del negocio: Google Calendar, Outlook, etc. */
+    if (b.action === "external_cal") {
+      const serviceId = Number(b.serviceId);
+      let url = String(b.url ?? "").trim();
+      if (!serviceId) return NextResponse.json({ error: "Servicio inválido" }, { status: 400 });
+      if (url) {
+        if (!/^https:\/\//i.test(url)) {
+          return NextResponse.json({ error: "Pega el enlace ICS completo, empieza por https://" }, { status: 400 });
+        }
+        try {
+          await externalBusy(url, Date.now() - 30 * 86400e3, Date.now() + 86400e3 * 400);
+        } catch (e) {
+          return NextResponse.json({ error: `No pudimos leer ese calendario: ${(e as Error).message}. Revisa que sea el enlace ICS privado de tu calendario.` }, { status: 400 });
+        }
+      }
+      await setServiceCalUrl(serviceId, url || null);
+      return NextResponse.json({ ok: true, externalCalUrl: url || null });
     }
 
     /* 🗑️ Eliminar opción del catálogo */
