@@ -25,12 +25,17 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: "cover",
-  interactiveWidget: "resizes-visual",
+  interactiveWidget: "resizes-content",
 };
 
-/* Sirve TODAS las páginas sin caché: el usuario siempre ve la última versión
-   (antes las páginas pregeneradas salían con caché de 1 año y el CDN daba versiones viejas) */
-export const dynamic = "force-dynamic";
+/* Caché: ANTES todo el layout era force-dynamic → cada navegación pedía
+   renderizar la página en vivo contra la BD (~1 s de espera y la imagen
+   "brinca" al llegar). Ahora:
+   - páginas públicas (home, restaurantes, servicios, médicos, viajes) se
+     sirven del caché de borde de Vercel revalidando cada 10 s → navegación
+     casi instantánea y los datos con ≤10 s de edad.
+   - páginas personales (pedidos, checkout, cuenta, profesional, socio,
+     conductor) llevan su propio force-dynamic en su page.tsx. */
 
 export default function RootLayout({
   children,

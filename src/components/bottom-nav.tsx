@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Search, ReceiptText, User, CarFront, Utensils, CalendarDays, Stethoscope, X, Zap, ChevronRight } from "lucide-react";
+import { Home, Search, ReceiptText, User, CarFront, Utensils, CalendarDays, Stethoscope, X, Zap } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
 const items = [
@@ -22,101 +22,15 @@ const quick = [
   { href: "/medicos", label: "Salud", desc: "Médicos y farmacias 24h", icon: Stethoscope, color: "#1d6ae5", soft: "#e8f1fe", match: (p: string) => p.startsWith("/medicos") },
 ];
 
-/* ── Menú lateral (asa) para páginas SIN barra inferior ── */
-function SideMenu({ pathname }: { pathname: string }) {
-  const [open, setOpen] = useState(false);
-  useEffect(() => setOpen(false), [pathname]);
-
-  return (
-    <>
-      {/* Fondo: se quita al instante al cerrar para no "comerse" el siguiente toque */}
-      {open && (
-        <div
-          onClick={() => setOpen(false)}
-          className="fixed inset-0 z-[70] bg-black/50 backdrop-blur-[3px]"
-        />
-      )}
-
-      <div className="fixed top-16 left-0 z-[75]">
-        {!open ? (
-          <motion.button
-            onClick={() => setOpen(true)}
-            whileTap={{ scale: 0.9 }}
-            aria-label="Abrir menú de servicios Rayte"
-            className="flex h-16 w-7 items-center justify-center rounded-r-2xl bg-ink/95 shadow-[0_6px_20px_rgba(0,0,0,0.35)] ring-2 ring-white/90 backdrop-blur"
-          >
-            <span className="flex flex-col items-center gap-0.5 text-white">
-              <Zap className="h-3.5 w-3.5 fill-brand text-brand" />
-              <ChevronRight className="h-4 w-4" strokeWidth={3} />
-            </span>
-          </motion.button>
-        ) : (
-          <motion.button
-            initial={{ scale: 0.6, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            onClick={() => setOpen(false)}
-            whileTap={{ scale: 0.9 }}
-            aria-label="Cerrar menú"
-            className="ml-3 flex h-11 w-11 items-center justify-center rounded-full bg-ink/95 text-white shadow-[0_10px_30px_rgba(0,0,0,0.4)] ring-2 ring-white/90"
-          >
-            <X className="h-5 w-5" strokeWidth={2.8} />
-          </motion.button>
-        )}
-
-        <AnimatePresence>
-          {open && (
-            <div className="mt-2.5 ml-3 flex flex-col gap-2">
-              {quick.map(({ href, label, desc, icon: Icon, color, soft, match }, i) => {
-                const active = match(pathname);
-                return (
-                  <motion.div
-                    key={label}
-                    initial={{ x: -70, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    exit={{ x: -70, opacity: 0, transition: { delay: (quick.length - 1 - i) * 0.03 } }}
-                    transition={{ type: "spring", stiffness: 420, damping: 30, delay: i * 0.06 }}
-                  >
-                    <Link
-                      href={href}
-                      className="flex w-[210px] items-center gap-3 rounded-[20px] border bg-white py-2.5 pr-4 pl-2.5 shadow-[0_12px_30px_rgba(0,0,0,0.18)] transition active:scale-95"
-                      style={{ borderColor: active ? color : "rgba(0,0,0,0.06)" }}
-                    >
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl" style={{ backgroundColor: soft }}>
-                        <Icon className="h-5 w-5" style={{ color }} strokeWidth={2.5} />
-                      </span>
-                      <span className="min-w-0">
-                        <span className="block text-[14px] leading-tight font-black" style={{ color: active ? color : undefined }}>{label}</span>
-                        <span className="block truncate text-[11px] font-bold text-ink-soft">{desc}</span>
-                      </span>
-                      {active && <span className="ml-auto h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: color }} />}
-                    </Link>
-                  </motion.div>
-                );
-              })}
-            </div>
-          )}
-        </AnimatePresence>
-      </div>
-    </>
-  );
-}
-
 export default function BottomNav() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   useEffect(() => setMenuOpen(false), [pathname]);
 
-  const navHidden =
-    pathname.startsWith("/pedido/") ||
-    pathname.startsWith("/checkout") ||
-    pathname.startsWith("/socio") ||
-    pathname.startsWith("/profesional") ||
-    pathname.startsWith("/conductor");
-
-  const sideMenuHidden = pathname.startsWith("/checkout") || pathname.startsWith("/pedido/");
-
-  /* Páginas sin barra: el menú vive en el asa lateral, excepto en flujos críticos */
-  if (navHidden) return sideMenuHidden ? null : <SideMenu pathname={pathname} />;
+  /* El tab derecho (MENÚ) vive en TODAS las páginas — reemplaza al viejo menú
+     de la izquierda (SideMenu). Solo en flujos críticos (checkout y tracking
+     de pedido) no se muestra nada, para no interrumpir la acción. */
+  if (pathname.startsWith("/checkout") || pathname.startsWith("/pedido/")) return null;
 
   return (
     <>

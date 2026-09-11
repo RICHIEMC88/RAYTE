@@ -9,7 +9,7 @@ import { formatMXN } from "@/lib/utils";
 import { serviceCat } from "@/lib/service-cats";
 import BookingClient from "./booking-client";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 10; // caché de borde 10 s: navegación casi instantánea, datos con ≤10 s de edad
 
 export default async function ServicioDetailPage({
   params,

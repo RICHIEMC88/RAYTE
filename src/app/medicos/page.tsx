@@ -3,7 +3,7 @@ import { services } from "@/db/schema";
 import { asc, eq } from "drizzle-orm";
 import MedicosClient from "./medicos-client";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 10; // caché de borde 10 s: navegación casi instantánea, datos con ≤10 s de edad
 
 /* Listado DEDICADO de médicos y especialistas de la salud.
    Se muestra a parte del listado general de servicios para que

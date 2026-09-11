@@ -8,15 +8,17 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "images.pexels.com" },
     ],
   },
-  // Sin caché para el HTML → siempre se visualiza la última versión
+  // Caché de HTML: ANTES aquí se forzaba "no-store" en TODO el HTML para
+  // evitar versiones viejas. Ahora el control de frescura lo hace Next por
+  // ruta: páginas públicas con revalidate=10 (caché de borde 10 s) y páginas
+  // dinámicas/personales que Next ya sirve sin caché. Con "no-store", cada
+  // navegación se renderizaba en vivo (~1 s de espera y la imagen "brinca")
+  // → eliminado.
   async headers() {
     return [
       {
         source: "/((?!_next/static|_next/image|favicon|icon|tiendas|servicios/[^/]*\\.jpg).)*",
-        headers: [
-          { key: "Cache-Control", value: "no-store, must-revalidate" },
-          { key: "Access-Control-Allow-Origin", value: "*" },
-        ],
+        headers: [{ key: "Access-Control-Allow-Origin", value: "*" }],
       },
     ];
   },
