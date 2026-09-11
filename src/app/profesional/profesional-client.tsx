@@ -716,7 +716,7 @@ function AddServiceModal({
                 <Home className="h-4 w-4" /> A domicilio
               </button>
               <button onClick={() => setLocal((v) => !v)} className={`flex items-center justify-center gap-2 rounded-2xl border py-3 text-[13.5px] font-black transition ${local ? "text-white" : "border-black/10 text-ink"}`} style={local ? { backgroundColor: conf.accent, borderColor: conf.accent } : undefined}>
-                <Store className="h-4 w-4" /> En local
+                <Store className="h-4 w-4" /> {isMedical ? "Consultorio" : "En local"}
               </button>
             </div>
           </div>
@@ -1138,7 +1138,7 @@ export default function ProfesionalClient({ services }: { services: ServiceLite[
         </p>
         <p className="mt-0.5 flex items-center gap-1.5 text-[12px] font-bold text-ink-soft/90">
           {a.mode === "domicilio" ? <Home className="h-3.5 w-3.5 shrink-0" /> : <Store className="h-3.5 w-3.5 shrink-0" />}
-          {a.mode === "domicilio" ? (a.address ?? "A domicilio") : "En el local"} · <Phone className="h-3 w-3 shrink-0" /> {a.phone}
+          {a.mode === "domicilio" ? (a.address ?? "A domicilio") : conf.medico ? "En el consultorio" : "En el local"} · <Phone className="h-3 w-3 shrink-0" /> {a.phone}
         </p>
         {a.notes && <p className="mt-1 text-[11.5px] font-bold text-ink-soft italic">&quot;{a.notes}&quot;</p>}
 
@@ -1386,7 +1386,7 @@ export default function ProfesionalClient({ services }: { services: ServiceLite[
                                   </p>
                                   <span className={`rounded-full px-2 py-0.5 text-[10px] font-black ${(APPT_BADGE[a.status] ?? APPT_BADGE.scheduled).cls}`}>{(APPT_BADGE[a.status] ?? APPT_BADGE.scheduled).label}</span>
                                 </div>
-                                <p className="mt-0.5 text-[11.5px] font-bold text-ink-soft">{a.serviceName} · {a.mode === "domicilio" ? "A domicilio" : "En local"} · {formatMXN(a.price)}</p>
+                                <p className="mt-0.5 text-[11.5px] font-bold text-ink-soft">{a.serviceName} · {a.mode === "domicilio" ? "A domicilio" : conf.medico ? "Consultorio" : "En local"} · {formatMXN(a.price)}</p>
                                 {conf.medico && snapshotPreview.length > 0 && (
                                   <div className="mt-2 flex flex-wrap gap-1.5">
                                     {snapshotPreview.map((field) => (
@@ -1446,7 +1446,7 @@ export default function ProfesionalClient({ services }: { services: ServiceLite[
                 A domicilio
               </button>
               <button onClick={() => setManualMode("local")} className={`rounded-2xl border py-3 text-[13px] font-black transition ${manualMode === "local" ? "text-white" : "border-black/10 text-ink"}`} style={manualMode === "local" ? { backgroundColor: conf.accent, borderColor: conf.accent } : undefined}>
-                En local
+                {conf.medico ? "Consultorio" : "En local"}
               </button>
             </div>
 
@@ -1646,7 +1646,7 @@ export default function ProfesionalClient({ services }: { services: ServiceLite[
                 <p className="text-[11px] font-black tracking-widest text-ink-soft uppercase">Resumen de la solicitud</p>
                 <div className="mt-2 space-y-1.5 text-[13px] font-bold text-ink">
                   <p className="flex items-center gap-2"><Phone className="h-3.5 w-3.5" style={{ color: conf.accent }} /> {noteAppt.phone}</p>
-                  <p className="flex items-center gap-2">{noteAppt.mode === "domicilio" ? <Home className="h-3.5 w-3.5" style={{ color: conf.accent }} /> : <Store className="h-3.5 w-3.5" style={{ color: conf.accent }} />}{noteAppt.mode === "domicilio" ? (noteAppt.address ?? "A domicilio") : "En el local"}</p>
+                  <p className="flex items-center gap-2">{noteAppt.mode === "domicilio" ? <Home className="h-3.5 w-3.5" style={{ color: conf.accent }} /> : <Store className="h-3.5 w-3.5" style={{ color: conf.accent }} />}{noteAppt.mode === "domicilio" ? (noteAppt.address ?? "A domicilio") : conf.medico ? "En el consultorio" : "En el local"}</p>
                   {noteAppt.optionName && <p className="flex items-center gap-2"><ClipboardList className="h-3.5 w-3.5" style={{ color: conf.accent }} /> {noteAppt.optionName}</p>}
                 </div>
               </div>
@@ -1794,7 +1794,7 @@ export default function ProfesionalClient({ services }: { services: ServiceLite[
                 <div className="mt-2 space-y-1.5 text-[13px] font-bold text-ink">
                   <p className="flex items-center gap-2 capitalize"><CalendarDays className="h-3.5 w-3.5 shrink-0" style={{ color: conf.accent }} /> {new Intl.DateTimeFormat("es-MX", { weekday: "long", day: "numeric", month: "long", hour: "numeric", minute: "2-digit" }).format(new Date(detailFor.startAt))}</p>
                   <p className="flex items-center gap-2"><Clock3 className="h-3.5 w-3.5 shrink-0" style={{ color: conf.accent }} /> {detailFor.optionName ? `${detailFor.optionName} · ` : ""}{detailFor.serviceName} · {formatMXN(detailFor.price)}</p>
-                  <p className="flex items-center gap-2">{detailFor.mode === "domicilio" ? <Home className="h-3.5 w-3.5 shrink-0" style={{ color: conf.accent }} /> : <Store className="h-3.5 w-3.5 shrink-0" style={{ color: conf.accent }} />} {detailFor.mode === "domicilio" ? "A domicilio" : "En el local"}</p>
+                  <p className="flex items-center gap-2">{detailFor.mode === "domicilio" ? <Home className="h-3.5 w-3.5 shrink-0" style={{ color: conf.accent }} /> : <Store className="h-3.5 w-3.5 shrink-0" style={{ color: conf.accent }} />} {detailFor.mode === "domicilio" ? "A domicilio" : conf.medico ? "En el consultorio" : "En el local"}</p>
                   {detailFor.mode === "domicilio" && detailFor.address && (
                     <p className="flex items-start gap-2"><MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" style={{ color: conf.accent }} /> {detailFor.address}</p>
                   )}

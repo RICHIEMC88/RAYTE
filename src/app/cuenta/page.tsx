@@ -24,6 +24,7 @@ type Appointment = {
   mode: string;
   status: string;
   proName?: string;
+  category?: string | null;
 };
 
 type SessionUser = { id: number; name: string; phone: string; address: string };
@@ -408,7 +409,7 @@ export default function CuentaPage() {
                     <span className="text-[14px] font-black text-ink">{formatMXN(a.price)}</span>
                   </div>
                   <div className="mt-2 flex items-center justify-between text-[11.5px] font-bold text-ink-soft">
-                    <span>{a.mode === "domicilio" ? "🛵 A domicilio" : "🏪 En el local"}</span>
+                    <span>{a.mode === "domicilio" ? "🛵 A domicilio" : a.category === "salud" ? "🏪 Consultorio" : "🏪 En el local"}</span>
                     <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10.5px] font-black text-emerald-600">Confirmada</span>
                   </div>
                 </div>

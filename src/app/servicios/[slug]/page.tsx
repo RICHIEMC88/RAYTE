@@ -79,7 +79,7 @@ export default async function ServicioDetailPage({
                 <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-[#e6f8ee] px-3 py-1.5 text-[12px] font-black text-[#0ea55b]"><Home className="h-3.5 w-3.5" /> A domicilio</span>
               )}
               {service.local && (
-                <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-mist px-3 py-1.5 text-[12px] font-black text-ink"><Store className="h-3.5 w-3.5" /> En local</span>
+                <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-mist px-3 py-1.5 text-[12px] font-black text-ink"><Store className="h-3.5 w-3.5" /> {service.category === "salud" ? "Consultorio" : "En local"}</span>
               )}
             </div>
 

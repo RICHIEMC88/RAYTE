@@ -160,12 +160,13 @@ export async function GET(req: Request) {
   const phone = sp.get("phone");
   if (!phone) return NextResponse.json({ error: "phone o service requerido" }, { status: 400 });
   const rows = await db
-    .select()
+    .select({ a: appointments, category: services.category })
     .from(appointments)
+    .leftJoin(services, eq(appointments.serviceId, services.id))
     .where(eq(appointments.phone, phone))
     .orderBy(desc(appointments.startAt))
     .limit(20);
-  return NextResponse.json(rows);
+  return NextResponse.json(rows.map(({ a, category }) => ({ ...a, category: category ?? null })));
 }
 
 /* ── PATCH ──

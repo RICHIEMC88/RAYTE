@@ -199,7 +199,7 @@ export default function BookingClient({
           {new Intl.DateTimeFormat("es-MX", { weekday: "long", day: "numeric", month: "long", hour: "numeric", minute: "2-digit" }).format(new Date(done.startAt))} · {formatMXN(done.price)}
         </p>
         <p className="mt-2 text-[12.5px] font-semibold text-ink-soft">
-          {done.mode === "domicilio" ? "Un profesional llegará a tu dirección" : "Te esperamos en el local del proveedor"}
+          {done.mode === "domicilio" ? "Un profesional llegará a tu dirección" : isSalud ? "Te esperamos en el consultorio" : "Te esperamos en el local del proveedor"}
         </p>
       </motion.div>
     );
@@ -255,7 +255,7 @@ export default function BookingClient({
           <ModeBtn active={mode === "domicilio"} onClick={() => setMode("domicilio")} icon={<Home className="h-4 w-4" />} label="A domicilio" accent={accent} soft={soft} />
         )}
         {service.local && (
-          <ModeBtn active={mode === "local"} onClick={() => setMode("local")} icon={<Store className="h-4 w-4" />} label="En local" accent={accent} soft={soft} />
+          <ModeBtn active={mode === "local"} onClick={() => setMode("local")} icon={<Store className="h-4 w-4" />} label={isSalud ? "Consultorio" : "En local"} accent={accent} soft={soft} />
         )}
       </div>
 
