@@ -105,10 +105,12 @@ export default function BottomNav() {
       </AnimatePresence>
 
       {/* Botón flotante: tab pegado al borde derecho (estilo "asa"), al primer clic
-          se abre el menú. Posición: cerca del final de la pantalla (zona que
-          marcó el usuario), anclado desde abajo para que nunca se corte.
-          Sin animación de rebote: no estorba y no tapa contenido. */}
-      <div className="fixed right-0 bottom-[max(16px,4%)] z-[70]">
+          se abre el menú. Altura FIJA al 80% desde arriba = la altura exacta
+          que aparece en la imagen del usuario. NO se baja más de ahí: cerca
+          del borde inferior el primer toque lo "come" la zona de gestos del
+          navegador y hay que tocar dos veces. Sin animación de rebote: no
+          estorba y no tapa contenido. */}
+      <div className="fixed right-0 top-[80%] z-[70] -translate-y-1/2">
         <motion.button
           onClick={() => setMenuOpen((v) => !v)}
           whileTap={{ scale: 0.94 }}
