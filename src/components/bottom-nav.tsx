@@ -53,9 +53,21 @@ export default function BottomNav() {
               transition={{ type: "spring", stiffness: 380, damping: 30 }}
               className="fixed inset-x-4 bottom-20 z-[65] mx-auto max-w-md rounded-[28px] bg-ink/95 p-4 shadow-[0_24px_60px_rgba(0,0,0,0.45)] backdrop-blur"
             >
-              <p className="flex items-center gap-1.5 px-1 text-[11px] font-black tracking-widest text-white/60 uppercase">
-                Ir a
-              </p>
+              {/* Asa del panel (estilo hoja) + cierre dentro del propio menú:
+                  profesional, sin botones flotando sobre la esquina del panel. */}
+              <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-white/25" />
+              <div className="flex items-center justify-between px-1">
+                <p className="text-[11px] font-black tracking-widest text-white/60 uppercase">
+                  Ir a
+                </p>
+                <button
+                  onClick={() => setMenuOpen(false)}
+                  aria-label="Cerrar menú"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 transition active:scale-90"
+                >
+                  <X className="h-5 w-5 text-white" strokeWidth={2.6} />
+                </button>
+              </div>
               <div className="mt-2 flex gap-1.5">
                 {items.map(({ href, label, icon: Icon, match }) => {
                   const active = match(pathname);
@@ -104,37 +116,30 @@ export default function BottomNav() {
         )}
       </AnimatePresence>
 
-      {/* Botón flotante: tab pegado al borde derecho (estilo "asa"), al primer clic
-          se abre el menú. Altura FIJA al 80% desde arriba = la altura exacta
-          que aparece en la imagen del usuario. NO se baja más de ahí: cerca
-          del borde inferior el primer toque lo "come" la zona de gestos del
-          navegador y hay que tocar dos veces. Sin animación de rebote: no
-          estorba y no tapa contenido. */}
-      <div className="fixed right-0 top-[80%] z-[70] -translate-y-1/2">
-        <motion.button
-          onClick={() => setMenuOpen((v) => !v)}
-          whileTap={{ scale: 0.94 }}
-          aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
-          className={`flex flex-col items-center justify-center gap-1.5 rounded-l-2xl bg-ink/95 shadow-[0_6px_20px_rgba(0,0,0,0.35)] ring-2 ring-white/90 backdrop-blur ${menuOpen ? "h-14 w-11" : "h-24 w-9"}`}
-        >
-          {menuOpen ? (
-            <>
-              <X className="h-5 w-5 text-white" strokeWidth={2.8} />
-              <span className="text-[9px] font-black tracking-widest text-white/70">CERRAR</span>
-            </>
-          ) : (
-            <>
-              <Zap className="h-4 w-4 fill-brand text-brand" strokeWidth={2.5} />
-              <span className="flex flex-col items-center text-[10px] leading-[1.15] font-black text-white">
-                <span>M</span>
-                <span>E</span>
-                <span>N</span>
-                <span>Ú</span>
-              </span>
-            </>
-          )}
-        </motion.button>
-      </div>
+      {/* Tab del borde derecho: SOLO cuando el menú está cerrado (una sola
+          función: abrir). Cuando el menú está abierto, el tab se oculta y el
+          cierre vive DENTRO del panel (X arriba a la derecha + asa + tap en el
+          fondo), como en cualquier hoja profesional. Altura FIJA al 80% desde
+          arriba (la que marcó el usuario): más abajo, el primer toque lo "come"
+          la zona de gestos del navegador. */}
+      {!menuOpen && (
+        <div className="fixed right-0 top-[80%] z-[70] -translate-y-1/2">
+          <motion.button
+            onClick={() => setMenuOpen(true)}
+            whileTap={{ scale: 0.94 }}
+            aria-label="Abrir menú"
+            className="flex h-24 w-9 flex-col items-center justify-center gap-1.5 rounded-l-2xl bg-ink/95 shadow-[0_6px_20px_rgba(0,0,0,0.35)] ring-2 ring-white/90 backdrop-blur"
+          >
+            <Zap className="h-4 w-4 fill-brand text-brand" strokeWidth={2.5} />
+            <span className="flex flex-col items-center text-[10px] leading-[1.15] font-black text-white">
+              <span>M</span>
+              <span>E</span>
+              <span>N</span>
+              <span>Ú</span>
+            </span>
+          </motion.button>
+        </div>
+      )}
     </>
   );
 }
