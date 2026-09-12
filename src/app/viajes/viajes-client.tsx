@@ -622,11 +622,11 @@ export default function ViajesClient({ crossItems = [], crossTitle }: { crossIte
               className="fixed inset-0 z-[80] bg-black/60 backdrop-blur-[2px]"
             />
             <motion.div
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              exit={{ y: "100%" }}
-              transition={{ type: "spring", stiffness: 340, damping: 32 }}
-              className="fixed inset-x-0 bottom-0 z-[85] mx-auto max-w-lg rounded-t-[28px] bg-[#1d1824] p-5 pb-8 shadow-[0_-20px_60px_rgba(0,0,0,0.7)]"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 40 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="fixed inset-x-0 bottom-0 z-[85] mx-auto max-h-[85vh] max-w-lg overflow-y-auto rounded-t-[28px] bg-[#1d1824] p-5 pb-8 shadow-[0_-20px_60px_rgba(0,0,0,0.7)]"
             >
               <div className="flex items-center justify-between">
                 <div>
@@ -700,11 +700,11 @@ export default function ViajesClient({ crossItems = [], crossTitle }: { crossIte
               className="fixed inset-0 z-[80] bg-black/70 backdrop-blur-[3px]"
             />
             <motion.div
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              exit={{ y: "100%" }}
-              transition={{ type: "spring", stiffness: 340, damping: 32 }}
-              className="fixed inset-x-0 bottom-0 z-[85] mx-auto max-w-lg rounded-t-[28px] border-t-2 border-rose-500 bg-[#1d1824] p-5 pb-8 shadow-[0_-20px_60px_rgba(0,0,0,0.85)]"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 40 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="fixed inset-x-0 bottom-0 z-[85] mx-auto max-h-[85vh] max-w-lg overflow-y-auto rounded-t-[28px] border-t-2 border-rose-500 bg-[#1d1824] p-5 pb-8 shadow-[0_-20px_60px_rgba(0,0,0,0.85)]"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
@@ -785,9 +785,9 @@ export default function ViajesClient({ crossItems = [], crossTitle }: { crossIte
               className="fixed inset-0 z-[80] bg-black/60 backdrop-blur-[2px]"
             />
             <motion.div
-              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
-              transition={{ type: "spring", damping: 32, stiffness: 340 }}
-              className="fixed inset-x-0 bottom-0 z-[85] mx-auto max-w-lg rounded-t-[28px] bg-[#1d1824] px-5 pb-6 shadow-[0_-20px_60px_rgba(0,0,0,0.6)]"
+              initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 40 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="fixed inset-x-0 bottom-0 z-[85] mx-auto max-h-[85vh] max-w-lg overflow-y-auto rounded-t-[28px] bg-[#1d1824] px-5 pb-6 shadow-[0_-20px_60px_rgba(0,0,0,0.6)]"
             >
               <div className="mx-auto mt-3 h-1.5 w-10 rounded-full bg-white/15" />
               <div className="mt-4 flex items-start justify-between">

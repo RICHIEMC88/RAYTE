@@ -167,11 +167,11 @@ export default function PaymentModal({ open, amount, customer, initialMethod = "
         <>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-[2px]" />
           <motion.div
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{ type: "spring", stiffness: 320, damping: 32 }}
-            className="fixed inset-x-0 bottom-0 z-[125] mx-auto flex max-h-[92vh] w-full max-w-md flex-col overflow-hidden rounded-t-[26px] bg-white shadow-[0_-20px_60px_rgba(0,0,0,0.35)] sm:inset-y-6 sm:rounded-[26px]"
+            initial={{ opacity: 0, y: 48 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 48 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            className="fixed inset-0 z-[125] flex w-full flex-col overflow-hidden bg-white sm:inset-x-6 sm:inset-y-8 sm:mx-auto sm:max-w-md sm:rounded-[26px] sm:shadow-[0_-20px_60px_rgba(0,0,0,0.35)]"
           >
             {/* Header estilo OpenPay */}
             <div className="relative shrink-0 px-5 py-4 text-white" style={{ background: `linear-gradient(135deg, ${OPENPAY_BLUE}, #0a3564)` }}>

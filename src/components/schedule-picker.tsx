@@ -92,11 +92,11 @@ export default function SchedulePicker({
             className="fixed inset-0 z-[80] bg-black/60 backdrop-blur-[2px]"
           />
           <motion.div
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{ type: "spring", stiffness: 340, damping: 32 }}
-            className="fixed inset-x-0 bottom-0 z-[85] mx-auto flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-t-[28px] bg-white shadow-[0_-20px_60px_rgba(0,0,0,0.35)] sm:inset-y-6 sm:rounded-[28px] sm:border sm:border-black/5"
+            initial={{ opacity: 0, y: 48 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 48 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            className="fixed inset-0 z-[85] flex w-full flex-col overflow-hidden bg-white sm:inset-x-6 sm:inset-y-8 sm:mx-auto sm:max-w-lg sm:rounded-[28px] sm:border sm:border-black/5 sm:shadow-[0_-20px_60px_rgba(0,0,0,0.35)]"
           >
             <div className="flex shrink-0 items-start justify-between px-5 pt-5 pb-3">
               <div>
