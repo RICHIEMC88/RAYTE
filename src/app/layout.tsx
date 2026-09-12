@@ -25,7 +25,11 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: "cover",
-  interactiveWidget: "resizes-content",
+  /* resizes-visual = comportamiento moderno de Chrome: al abrir el teclado la
+     página NO se reorganiza (el layout no cambia); el navegador solo desplaza
+     suavemente la vista para mostrar el campo. Con "resizes-content" la
+     página entera se refluja al escribir → se "movía" al tocar buscar. */
+  interactiveWidget: "resizes-visual",
 };
 
 /* Caché: ANTES todo el layout era force-dynamic → cada navegación pedía

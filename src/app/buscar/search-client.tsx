@@ -279,7 +279,7 @@ export default function SearchClient({
                         <CrossSell items={crossItems} title={crossTitle} />
                       </div>
                     )}
-                    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(i * 0.04, 0.3) }}>
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.12 }}>
                       <Link href={`/restaurante/${r.slug}`} className="group flex items-stretch gap-3">
                         <div className="relative h-[124px] w-[124px] shrink-0 overflow-hidden rounded-2xl bg-mist">
                           <Image src={r.image} alt={r.name} fill className="object-cover transition-transform duration-700 group-hover:scale-[1.07]" sizes="124px" />

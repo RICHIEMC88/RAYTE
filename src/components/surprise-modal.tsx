@@ -97,9 +97,11 @@ export default function SurpriseModal({
         <>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 z-[80] bg-black/60 backdrop-blur-[2px]" />
           <motion.div
-            initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
-            transition={{ type: "spring", stiffness: 320, damping: 32 }}
-            className="fixed inset-x-0 bottom-0 z-[85] mx-auto flex max-h-[88vh] w-full max-w-lg flex-col overflow-hidden rounded-t-[28px] bg-white shadow-[0_-20px_60px_rgba(0,0,0,0.35)] sm:inset-y-6 sm:rounded-[28px] sm:border sm:border-black/5"
+            initial={{ opacity: 0, y: 48 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 48 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            className="fixed inset-0 z-[85] flex w-full flex-col overflow-hidden bg-white sm:inset-x-6 sm:inset-y-8 sm:mx-auto sm:max-w-lg sm:rounded-[28px] sm:border sm:border-black/5 sm:shadow-[0_-20px_60px_rgba(0,0,0,0.35)]"
           >
             <div className="relative shrink-0 bg-gradient-to-br from-brand via-brand-hard to-[var(--brand-accent)] px-5 py-4 text-white">
               <button onClick={onClose} aria-label="Cerrar" className="absolute top-4 right-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/20 transition active:scale-90">
