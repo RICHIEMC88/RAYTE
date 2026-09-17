@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { CalendarDays, Check, ChevronLeft, ChevronRight, Clock3, Home, Loader2, Store, Zap } from "lucide-react";
 import type { Service, ServiceOption } from "@/db/schema";
@@ -201,6 +202,16 @@ export default function BookingClient({
         <p className="mt-2 text-[12.5px] font-semibold text-ink-soft">
           {done.mode === "domicilio" ? "Un profesional llegará a tu dirección" : isSalud ? "Te esperamos en el consultorio" : "Te esperamos en el local del proveedor"}
         </p>
+        {/* Salida clara: antes la confirmación dejaba sin botón (callejón sin salida) */}
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5">
+          <Link
+            href="/"
+            className="flex items-center gap-2 rounded-full px-6 py-3 text-[13.5px] font-black text-white shadow-md transition active:scale-95"
+            style={{ backgroundColor: accent }}
+          >
+            <Home className="h-4 w-4" /> Listo, volver al inicio
+          </Link>
+        </div>
       </motion.div>
     );
   }
